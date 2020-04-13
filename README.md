@@ -4,6 +4,8 @@
 - [ ] Cache overloading with .png maps
 
 ## TODO
+- [x] Creating mock app
+- [x] Setting up an adnroid environment and first (succesful) .apk run
 - [ ] Reading current location from gps
 - [ ] Preparing data to be sent to the sever 
 - [ ] Periodical clearing the cache
