@@ -8,10 +8,8 @@ from kivy.properties import ObjectProperty
 import certifi
 import os
 
-# Here's all the magic !
-os.environ['SSL_CERT_FILE'] = certifi.where()
-
-
+# # Here's all the magic !
+# os.environ['SSL_CERT_FILE'] = certifi.where()
 
 
 class WindowManager(ScreenManager):
@@ -44,4 +42,6 @@ class MainApp(App):
 
 
 if __name__ == "__main__":
+    # Here's all the magic !
+    os.environ['SSL_CERT_FILE'] = certifi.where()
     MainApp().run()
