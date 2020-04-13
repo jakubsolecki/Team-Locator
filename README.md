@@ -12,4 +12,5 @@
 - [ ] Creating (at least mock) server -> separate repo?
 - [ ] Generating server token for the team
 - [ ] Connecting with server via token 
+
 Working on next tasks
