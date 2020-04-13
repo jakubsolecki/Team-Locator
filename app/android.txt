@@ -1,0 +1,3 @@
+title=Team Locator
+author=Jakub Solecki, Patryk Skupień
+orientation=portrait 
