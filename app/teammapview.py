@@ -18,25 +18,24 @@ class TeamMapView(MapView):
     longitude = location.longitude
     latitude = location.latitude
 
-    #Mock markers
-    #TODO: all markers to single 2D-array, markers[0] is local position and move them to another class?, add unique ID for each marker?
-    markers = [[longitude, latitude], [longitude + 0.0001, latitude + 0.001], [longitude + 0.01, latitude - 0.001], [longitude + 0.001, latitude - 0.01]]
+    # Mock markers
+    # TODO: all markers to single 2D-array, markers[0] is local position and move them to another class?,
+    # add unique ID for each marker?
+    markers = [[longitude, latitude], [longitude + 0.0001, latitude + 0.001], [longitude + 0.01, latitude - 0.001],
+               [longitude + 0.001, latitude - 0.01]]
 
     def draw_markers(self):
         try:
            self.refresh_timer.cancel()
-        except:
+        except:  # TODO: remove?
             pass
         self.refresh_timer = Clock.schedule_once(self.get_markers_in_fov, 0.1)
 
-
-
     def get_markers_in_fov(self, *args):
-        dLat, dLon, uLat, uLon = self.get_bbox()
+        d_lat, d_lon, u_lat, u_lon = self.get_bbox()
         for marker in self.markers:
-            if (marker[1] > dLat and marker[1] < uLat and marker[0] > dLon and marker[0] < uLon):
+            if d_lat < marker[1] < u_lat and d_lon < marker[0] < u_lon:
                 self.add_mark(marker)
-
 
     def add_mark(self, marker):
         lat, lon = marker[1], marker[0]
@@ -44,20 +43,20 @@ class TeamMapView(MapView):
         self.add_widget(popup)
         pass
 
-    def show_full_team(self): #centers map to middle of the team, not player
-        minLon = min(i[0] for i in self.markers)
-        minLat = min(i[1] for i in self.markers)
-        maxLon = max(i[0] for i in self.markers)
-        maxLat = max(i[1] for i in self.markers)
+    def show_full_team(self):  # centers map to middle of the team, not player
+        min_lon = min(i[0] for i in self.markers)
+        min_lat = min(i[1] for i in self.markers)
+        max_lon = max(i[0] for i in self.markers)
+        max_lat = max(i[1] for i in self.markers)
 
-        self.lon = (minLon + maxLon)/2
-        self.lat = (minLat + maxLat)/2
+        self.lon = (min_lon + max_lon)/2
+        self.lat = (min_lat + max_lat)/2
 
         self.zoom = self.zoom + 1
 
         while True:
-            dLat, dLon, uLat, uLon = self.get_bbox()
-            if (minLat > dLat and maxLat < uLat and minLon > dLon and maxLon < uLon):
+            d_lat, d_lon, u_lat, u_lon = self.get_bbox()
+            if min_lat > d_lat and max_lat < u_lat and min_lon > d_lon and max_lon < u_lon:
                 return
             self.zoom = self.zoom-1
 

@@ -7,15 +7,11 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.properties import ObjectProperty
 from teammapview import TeamMapView
 from gui import WindowManager
-
-
 import certifi
 import os
 
-# # Here's all the magic !
-# os.environ['SSL_CERT_FILE'] = certifi.where()
 
-#kv = Builder.load_file("gui.kv")
+# kv = Builder.load_file("gui.kv")
 
 
 class MainApp(App):
@@ -24,7 +20,6 @@ class MainApp(App):
 
 
 if __name__ == "__main__":
-    # Here's all the magic !
+    # Allows Internet connection on Android
     os.environ['SSL_CERT_FILE'] = certifi.where()
     MainApp().run()
-
