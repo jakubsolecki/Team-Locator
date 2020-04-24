@@ -1,4 +1,6 @@
-WindowManager:
+#:include teammapview.kv
+
+<WindowManager>:
     MapWindow:
     TokenWindow:
 
@@ -12,10 +14,14 @@ WindowManager:
         GridLayout:
             cols: 1
 
-            MapView:
-                zoom: 16
-                lon: root.location.longitude
-                lat: root.location.latitude
+            TeamMapView:
+                id: map
+
+        Button:
+            text: "Show full team"
+            on_release: map.show_full_team()
+            size: root.width, root.height * 0.1
+            size_hint: None, None
 
         Button:
             text: "Leave"
@@ -36,6 +42,7 @@ WindowManager:
 
         Button:
             text: "Connect"
+            on_release: app.root.current = "viewer"
 
         Button:
-            text: "Generate mew token"
+            text: "Generate new token"
