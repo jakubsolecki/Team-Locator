@@ -12,10 +12,12 @@ FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
 
+# TODO: wrap sends with try
+# TODO: wrap everything in Server class
+
 clients = []  # TODO: define maximum number of clients (needs thread testing)
 clients_data = []  # list of tuples: (connection (IP), name, lon, lat)
 
-# TODO: objectify
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("Socket created successfully")
 try:
@@ -38,7 +40,7 @@ def handle_client(connection, address):
         if msg_length:
             msg_length = int(msg_length)
             msg = pickle.loads(connection.recv(msg_length))
-            reply = "Message received!"
+            reply = "Message received!"  # TODO: remove in final version
             if msg == DISCONNECT_MESSAGE:
                 connected = False
             elif isinstance(msg, tuple):
@@ -52,29 +54,34 @@ def handle_client(connection, address):
                     data = clients_data[:]
                 reply = [(tup[1], tup[2], tup[3]) for tup in data]
             print(f"[{address}] {msg}")
-            reply = pickle.dumps(reply)
-            rpl_length = len(reply)
-            send_length = str(rpl_length).encode(FORMAT)
-            send_length += b' ' * (HEADER_SIZE - len(send_length))
-            connection.send(send_length)
-            connection.send(reply)
-            # connection.send("Message received".encode(FORMAT))
-            # connection.send(pickle.dumps(msg))
+            send(connection, reply)
 
     with lock:
         clients.remove((connection, address))
     connection.close()
 
 
+# send message to client (connection)
+def send(connection, msg):
+    msg = pickle.dumps(msg)
+    msg_length = len(msg)
+    send_length = str(msg_length).encode(FORMAT)
+    send_length += b' ' * (HEADER_SIZE - len(send_length))
+    connection.send(send_length)
+    connection.send(msg)
+
+
+# listen and connect new clients
 def handle_new_connections():
     while True:
         connection, address = server.accept()
         clients.append((connection, address))
-        thread = threading.Thread(target=handle_client, args=(connection, address))
-        thread.start()
+        handle_new_client_thread = threading.Thread(target=handle_client, args=(connection, address))
+        handle_new_client_thread.start()  # handle communication with each client in a separate thread
         print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}\n")
 
 
+# prettier server stop (rather than ^C)
 # def stop_server():
 #     while True:
 #         inpt = input()
@@ -86,7 +93,7 @@ def handle_new_connections():
 #             sys.exit()
 
 
-# handle new connections
+# server start
 def start():
     server.listen()
     # thread = threading.Thread(target=stop_server)
