@@ -7,6 +7,8 @@ import sys
 '''
 So far server works as long as all devices are within same wifi. Global version coming soon.
 General TODO:
+    - TOKENS FOR DIFFERENT TEAMS XDDDD Totally forgot. Server will generate token for each team. To join the team client
+    must send INIT message with team's token (previously obtained from game supervisor, who also host the server)    
     - more civilised way to quit server than sending SIGINT xD
     - gui
 '''

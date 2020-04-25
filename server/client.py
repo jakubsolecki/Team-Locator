@@ -5,9 +5,11 @@ import time
 
 '''
 General TODO:
-    - reading current gps location (maybe providing it from outside -> change update_location(name))
-    - reading server ip from user input (glorious "connect" on app's main screen)
-    - provide name from user input (see above)
+    - setup messages:
+        1) provide server ip from user input (glorious "connect" on app's main screen)
+        2) provide token from user input (separate token for each team), then send it to the server in INIT message
+        3) provide name from user input (see above)
+    - reading current gps location (maybe providing it from outside -> change update_location(name))     
     - updating teammapview's list of teammates locations (in receive() -> when message is a list)
 '''
 
