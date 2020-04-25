@@ -3,19 +3,40 @@ import pickle
 import threading
 import time
 
+'''
+General TODO:
+    - reading current gps location (maybe providing it from outside -> change update_location(name))
+    - reading server ip from user input (glorious "connect" on app's main screen)
+    - provide name from user input (see above)
+    - updating teammapview's list of teammates locations (in receive() -> when message is a list)
+'''
 
+# TODO: move to the class?
 HEADER_SIZE = 64
 PORT = 5050
-SERVER = socket.gethostbyname(socket.gethostname())  # TODO: provide from user input
+SERVER = socket.gethostbyname(socket.gethostname())  # TODO: provide from user input (server ipv4 so far)
 ADDRESS = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
 
 
-# TODO: implement as singleton if found necessary
+# ====================== Client is a singleton so it must always be created using get_instance() ======================
 class Client:
+    __instance = None
+
+    # singleton implementation
+    @staticmethod
+    def get_instance():
+        if Client.__instance is None:
+            Client()
+        return Client.__instance
+
     def __init__(self):
+        if Client.__instance is not None:  # singleton implementation
+            raise Exception("Client class must be a singleton!")
+        else:
+            Client.__instance = self
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # connect to server using it's ip <- will be provided form user input
@@ -42,10 +63,8 @@ class Client:
         msg_length = len(message)
         send_length = str(msg_length).encode(FORMAT)
         send_length += b' ' * (HEADER_SIZE - len(send_length))
-        self.client.send(send_length)
-        self.client.send(message)
-        # rep = pickle.loads(client.recv(2048))
-        # print(rep)
+        self.client.send(send_length)  # first sending length
+        self.client.send(message)  # then actual message
 
     def receive(self):
         while True:
@@ -54,14 +73,16 @@ class Client:
                 msg_length = int(msg_length)
                 msg = pickle.loads(self.client.recv(msg_length))
                 print(msg)
+                # TODO: handling received messages according to their content
                 # if isinstance(msg, list):
-                #     print(msg)
-                #     #  update list of teammates locations
-                # elif msg == "Message received":
-                #     print(msg)
+                #    #  update list of teammates locations
+                # elif msg == "Server aborted":
+                #    #  notify user
+                #  #  handling other messages
 
 
-x = Client()
+# hardcoded testing
+x = Client().get_instance()
 x.connect(SERVER)
 x.send("Hello world!")
 input()
