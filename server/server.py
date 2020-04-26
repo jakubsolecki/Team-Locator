@@ -30,9 +30,8 @@ UPDATE_LOCATION = "!UPDATE_LOCATION"
 
 class Server:
     clients = []  # connected clients TODO: (or not) define maximum number of clients (to be determined after testing)
-    clients_data = []  # list of tuples: (connection (IP), name, lon, lat)
     tokens = []
-    client_locations = {}
+    client_locations = {}  # dict of clients locations
 
     def __init__(self):
         print("[STARTING] server is starting...")
@@ -71,7 +70,7 @@ class Server:
     def _handle_client(self, connection, address):
         print(f"[NEW CONNECTION] {address} connected")
         connected = True
-        lock = threading.RLock()
+        lock = threading.RLock()  # provides safe access to shared resources (variables)
 
         while connected:
             msg_length = connection.recv(HEADER_SIZE).decode(FORMAT)
@@ -81,19 +80,22 @@ class Server:
                 msg = pickle.loads(connection.recv(msg_length))
                 reply = "Message received!"  # TODO: remove in final version (debug purposes only)
 
-                if msg[0] == DISCONNECT_MESSAGE:
+                if msg[0] == DISCONNECT_MESSAGE:  # disconnect current client
                     connected = False
-                elif msg[0] == UPDATE_LOCATION:
+                    with lock:
+                        self.client_locations.pop((msg[1], connection))
+                    self._send_message(connection, (DISCONNECT_MESSAGE, "Disconnected from the server"))
+                elif msg[0] == UPDATE_LOCATION:  # message contains client's updated location
                     with lock:
                         self.client_locations[(msg[1][0], connection)] = msg[1][1]
-                elif msg[0] == REQUEST_LOCATIONS:
+                elif msg[0] == REQUEST_LOCATIONS:  # client requested all teammates' locations
                     with lock:
                         locations = []
                         for key in self.client_locations.keys():
                             if key[0] == msg[1]:
                                 locations.append(self.client_locations[key])
-                        reply = locations
-                elif msg[0] == INIT_MESSAGE:
+                    reply = (REQUEST_LOCATIONS, locations)
+                elif msg[0] == INIT_MESSAGE:  # client setup
                     token, name = msg[1].split(':', 1)
                     with lock:
                         if token in self.tokens:
@@ -107,25 +109,6 @@ class Server:
         with lock:
             self.clients.remove((connection, address))
         connection.close()
-
-    # def _read_message(self, msg):
-    #     lock = threading.RLock()
-    #     reply = "Message received!"
-    #     if msg == DISCONNECT_MESSAGE:
-    #         connected = False
-    #     elif isinstance(msg, tuple):
-    #         with lock:
-    #             tmp = (connection, msg[0], msg[1], msg[2])
-    #             if tmp not in self.clients_data:
-    #                 self.clients_data.append(tmp)
-    #             # update client's location
-    #             self.clients_data = [msg if data[0] == msg[0] else data for data in self.clients_data]
-    #     elif msg == REQUEST_LOCATIONS:
-    #         with lock:
-    #             data = self.clients_data[:]
-    #         reply = [(tup[1], tup[2], tup[3]) for tup in data]
-    #     print(f"[{address}] {msg}")
-    #     self._send_message(connection, reply)
 
     # send message to client
     def _send_message(self, connection, msg):
@@ -150,11 +133,12 @@ class Server:
 
             print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 2}\n")
 
+    # generate token for each team. Must be done before calling start()
     def generate_token(self):
-        # token = ''.join(choice(ascii_uppercase) for i in range(12))
+        # token = ''.join(choice(ascii_uppercase) for i in range(10))
         #
         # while token in self.tokens:
-        #     token = ''.join(choice(ascii_uppercase) for i in range(12))
+        #     token = ''.join(choice(ascii_uppercase) for i in range(10))
 
         token = "#ABCD"
         self.tokens.append(token)
