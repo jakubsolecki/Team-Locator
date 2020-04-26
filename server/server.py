@@ -8,11 +8,12 @@ from string import ascii_uppercase
 
 '''
 So far server works as long as all devices are within same wifi. Global version coming soon.
-General TODO:
-    - TOKENS FOR DIFFERENT TEAMS XDDDD Totally forgot. Server will generate token for each team. To join the team client
-    must send INIT message with team's token (previously obtained from game supervisor, who also host the server)    
+General TODO:   
     - more civilised way to quit server than sending SIGINT xD
     - gui
+In progress:
+    - TOKENS FOR DIFFERENT TEAMS XDDDD Totally forgot. Server will generate token for each team. To join the team client
+    must send INIT message with team's token (previously obtained from game supervisor, who also host the server) 
 '''
 
 # TODO: move to the class?
@@ -74,7 +75,7 @@ class Server:
 
         while connected:
             msg_length = connection.recv(HEADER_SIZE).decode(FORMAT)
-            
+
             if msg_length:
                 msg_length = int(msg_length)
                 msg = pickle.loads(connection.recv(msg_length))
