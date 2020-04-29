@@ -17,7 +17,7 @@ import os
 
 class MainApp(App):
     def on_start(self):
-        #GpsModule().run()
+        GpsModule().run()
         pass
 
 
@@ -25,3 +25,8 @@ if __name__ == "__main__":
     # Allows Internet connection on Android
     os.environ['SSL_CERT_FILE'] = certifi.where()
     MainApp().run()
+
+'''
+TODO APP LIST:
+1. better looking points
+'''

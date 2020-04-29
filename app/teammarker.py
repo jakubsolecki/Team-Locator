@@ -3,7 +3,7 @@ from kivy.animation import Animation
 
 
 class TeamMarker(MapMarker):
-    isRed = True
+    isRed = False
 
     if isRed:
         color = [1,0.3,0.3,1]

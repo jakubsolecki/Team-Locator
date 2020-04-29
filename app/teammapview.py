@@ -8,6 +8,7 @@ from kivy.app import App
 from teammarker import TeamMarker
 from gpsblinker import GpsBlinker
 
+
 class TeamMapView(MapView):
     refresh_timer = None
 
@@ -21,8 +22,7 @@ class TeamMapView(MapView):
     latitude = location.latitude
 
     # Mock markers
-    # TODO: all markers to single 2D-array, markers[0] is local position and move them to another class?,
-    # add unique ID for each marker?
+    # TODO: all markers to single 2D-array, markers[0] is local position and move them to another class?, add unique ID for each marker?
     markers = [[longitude+ 0.001, latitude- 0.001], [longitude + 0.0001, latitude + 0.001], [longitude + 0.01, latitude - 0.001], [longitude + 0.001, latitude - 0.01]]
 
     def draw_markers(self):

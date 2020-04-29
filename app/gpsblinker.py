@@ -3,7 +3,13 @@ from kivy.animation import Animation
 
 
 class GpsBlinker(MapMarker):
-    isRed = True
+    isRed = False
+
+    #TODO: MAKE BETTER LOOKING POINTS
+    if isRed:
+        color = [1, 0.3, 0.3, 0.6]
+    else:
+        color = [0.1, 0.8, 1, 0.6]
 
     def blink(self):
         self.outer_opacity = 1
