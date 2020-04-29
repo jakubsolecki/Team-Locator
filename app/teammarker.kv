@@ -1,0 +1,13 @@
+<TeamMarker>:
+    default_blink_size: 20
+    blink_size: 25
+    source: 'transparent.png'
+    outer_opacity: 1
+
+    canvas:
+        Color:
+            rgba: self.color
+        RoundedRectangle:
+            radius: [root.default_blink_size/2.0, ]
+            size: [root.default_blink_size, root.default_blink_size]
+            pos: [root.pos[0] + root.size[0]/2.0 - root.default_blink_size/2.0, root.pos[1] + root.size[1]/2.0 - root.default_blink_size/2.0]

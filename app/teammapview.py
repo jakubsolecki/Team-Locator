@@ -5,6 +5,8 @@ from kivy.clock import Clock
 from kivy.garden.mapview import MapMarkerPopup
 from kivy.app import App
 
+from teammarker import TeamMarker
+from gpsblinker import GpsBlinker
 
 class TeamMapView(MapView):
     refresh_timer = None
@@ -21,8 +23,7 @@ class TeamMapView(MapView):
     # Mock markers
     # TODO: all markers to single 2D-array, markers[0] is local position and move them to another class?,
     # add unique ID for each marker?
-    markers = [[longitude, latitude], [longitude + 0.0001, latitude + 0.001], [longitude + 0.01, latitude - 0.001],
-               [longitude + 0.001, latitude - 0.01]]
+    markers = [[longitude+ 0.001, latitude- 0.001], [longitude + 0.0001, latitude + 0.001], [longitude + 0.01, latitude - 0.001], [longitude + 0.001, latitude - 0.01]]
 
     def draw_markers(self):
         try:
@@ -39,7 +40,7 @@ class TeamMapView(MapView):
 
     def add_mark(self, marker):
         lat, lon = marker[1], marker[0]
-        popup = MapMarkerPopup(lat=lat, lon=lon)
+        popup = TeamMarker(lat=lat, lon=lon)
         self.add_widget(popup)
         pass
 

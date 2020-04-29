@@ -7,6 +7,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.properties import ObjectProperty
 from teammapview import TeamMapView
 from gui import WindowManager
+from gpsmodule import GpsModule
 import certifi
 import os
 
@@ -16,6 +17,7 @@ import os
 
 class MainApp(App):
     def on_start(self):
+        #GpsModule().run()
         pass
 
 
