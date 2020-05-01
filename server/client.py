@@ -61,6 +61,7 @@ class Client:
             # update_location_thread.daemon = True  # needs testing in app
             # update_location_thread.start()  # start updating current location
             receive_messages_thread = threading.Thread(target=self._receive_message)
+            # TODO: CHANGE DAEMONS TO CLEANING THREADS WHEN MAIN IS GOING TO EXIT
             receive_messages_thread.daemon = True  # needs testing in app
             receive_messages_thread.start()  # start listening to the server messages
 
