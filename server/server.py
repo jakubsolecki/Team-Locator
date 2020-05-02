@@ -3,6 +3,7 @@ import socket
 import pickle
 import sys
 import select
+import errno
 from random import choice
 from string import ascii_uppercase
 
@@ -30,33 +31,34 @@ class Server:
     def __init__(self):
         print("[STARTING] server is starting...")
         signal.signal(signal.SIGINT, self._sigint_handler)
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sockets_list = [self.server]  # storing active sockets
-        self.clients = {}  # storing info about clients
-        self.client_locations = {}  # storing clients' locations
-        self.tokens = []  # storing all generated (per session) tokens
+        self._server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self._sockets_list = [self._server]  # storing active sockets
+        self._clients = {}  # storing info about clients
+        self._client_locations = {}  # storing clients' locations
+        self._tokens = []  # storing all generated (per session) tokens
         print("Server socket created successfully")
 
     def _sigint_handler(self, signum, stack_frame):
         self.stop_server()
 
-    # server abort
+    # server abort TODO: notify clients when server is shutting down
     def stop_server(self):
-        for client_socket in self.sockets_list:
+        for client_socket in self._sockets_list:
             client_socket.close()
-        self.server.close()
+        self._server.close()
         sys.exit()
 
     # server start
     def start(self):
         try:
-            self.server.bind(ADDRESS)
-        except socket.error as errmsg:
-            print("Bind failed. Error code: " + errmsg[0] + "\nMessage: " + errmsg[1])
+            self._server.bind(ADDRESS)
+        except OSError as errmsg:
+            print("Bind failed. Error code: " + str(errmsg.errno) + "\nMessage: " + errmsg.strerror)
             sys.exit()
+
         print("Socket bind complete")
-        self.server.listen()
+        self._server.listen()
         print(f"[LISTENING] Server is listening on {SERVER}")
         self._listen_to_sockets()
 
@@ -75,34 +77,35 @@ class Server:
                 reply = "Message received!"  # TODO: remove in final version (debug purposes only)
 
                 if msg[0] == DISCONNECT_MESSAGE:  # disconnect current client
-                    self.client_locations.pop((msg[1], client_socket))
+                    self._client_locations.pop((msg[1], client_socket))
                     self._send_message(client_socket, (DISCONNECT_MESSAGE, "Disconnected from the server"))
-                    print(f"Closing connection for {self.clients[client_socket][0]}:{self.clients[client_socket][1]}")
-                    self.clients.pop(client_socket)
-                    self.sockets_list.remove(client_socket)
+                    print(f"Closing connection for {self._clients[client_socket][0]}:{self._clients[client_socket][1]}")
+                    self._clients.pop(client_socket)
+                    self._sockets_list.remove(client_socket)
                     client_socket.close()
                 elif msg[0] == UPDATE_LOCATION:  # message contains client's updated location
-                    self.client_locations[(msg[1][0], client_socket)] = msg[1][1]
+                    self._client_locations[(msg[1][0], client_socket)] = msg[1][1]
                 elif msg[0] == REQUEST_LOCATIONS:  # client requested all teammates' locations
                     locations = []
-                    for key in self.client_locations.keys():
-                        if key[0] == msg[1]:  # fetch only clients with same token
-                            locations.append(self.client_locations[key])
+                    for key in self._client_locations.keys():
+                        if key[0] == msg[1] and key[1] != client_socket:  # fetch only clients with same token
+                            locations.append(self._client_locations[key])
+                    locations.append(self._client_locations[(msg[0], client_socket)])  # client is always first
                     reply = (REQUEST_LOCATIONS, locations)
                 elif msg[0] == INIT_MESSAGE:  # client setup
                     token, name = msg[1].split(':', 1)
-                    if token in self.tokens:
-                        self.client_locations.update({(token, client_socket): (name, -1, -1)})  # TODO: real coords
+                    if token in self._tokens:
+                        self._client_locations.update({(token, client_socket): (name, -1, -1)})  # TODO: real coords
                     else:
                         print("Incorrect token")
 
-                print(f"[{self.clients[client_socket][0]}:{self.clients[client_socket][1]}] {msg}")
+                print(f"[{self._clients[client_socket][0]}:{self._clients[client_socket][1]}] {msg}")
                 self._send_message(client_socket, reply)
 
             else:
-                print(f"Closing connection for {self.clients[client_socket][0]}:{self.clients[client_socket][1]}")
-                self.clients.pop(client_socket)
-                self.sockets_list.remove(client_socket)
+                print(f"Closing connection for {self._clients[client_socket][0]}:{self._clients[client_socket][1]}")
+                self._clients.pop(client_socket)
+                self._sockets_list.remove(client_socket)
                 client_socket.close()
         except:
             pass
@@ -118,17 +121,17 @@ class Server:
 
     # accept new connections and append them to storage
     def _handle_new_connection(self):
-        client_socket, client_address = self.server.accept()
-        self.sockets_list.append(client_socket)
-        self.clients[client_socket] = client_address
+        client_socket, client_address = self._server.accept()
+        self._sockets_list.append(client_socket)
+        self._clients[client_socket] = client_address
         print(f"[NEW CONNECTION ]Accepted new connection from {client_address}")  # TODO: display better info
-        print(f"[ACTIVE CONNECTIONS] {len(self.sockets_list) - 1}\n")
+        print(f"[ACTIVE CONNECTIONS] {len(self._sockets_list) - 1}\n")
 
     def _listen_to_sockets(self):
         while True:
-            read_sockets, _, exception_sockets = select.select(self.sockets_list, [], self.sockets_list)
+            read_sockets, _, exception_sockets = select.select(self._sockets_list, [], self._sockets_list)
             for notified_socket in read_sockets:
-                if notified_socket == self.server:
+                if notified_socket == self._server:
                     self._handle_new_connection()
                 else:
                     self._handle_message(notified_socket)
@@ -141,7 +144,7 @@ class Server:
         #     token = ''.join(choice(ascii_uppercase) for i in range(10))
 
         token = "#ABCD"
-        self.tokens.append(token)
+        self._tokens.append(token)
         print(f"[NEW TOKEN] {token}")
 
 
