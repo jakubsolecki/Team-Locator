@@ -31,7 +31,9 @@ UPDATE_LOCATION = "!UPDATE_LOCATION"
 class Server:
     clients = []  # connected clients TODO: (or not) define maximum number of clients (to be determined after testing)
     tokens = []
-    client_locations = {}  # dict of clients locations
+    # client_locations = {}  # dict of clients locations
+    blue_locations = {}
+    red_locations = {}
 
     def __init__(self):
         print("[STARTING] server is starting...")
@@ -66,6 +68,15 @@ class Server:
         handle_new_connections_thread.start()
         # self._handle_new_connections()
 
+    def is_blue(self, token, nickname): # TODO: better way of checking team? Using connection? How does it work on reconnecting??
+        for key in self.blue_locations.keys():
+            if key[0] == token and self.blue_locations[key][0] == nickname:
+                return True
+        for key in self.red_locations.keys():
+            if key[0] == token and self.red_locations[key][0] == nickname:
+                return False
+        return False
+
     #  handle connected client
     def _handle_client(self, connection, address):
         print(f"[NEW CONNECTION] {address} connected")
@@ -82,24 +93,54 @@ class Server:
 
                 if msg[0] == DISCONNECT_MESSAGE:  # disconnect current client
                     connected = False
+                    token, nickname = msg[1].split(':', 1)
                     with lock:
-                        self.client_locations.pop((msg[1], connection))
+                        # self.client_locations.pop((msg[1], connection))
+                        if self.is_blue(token, nickname):
+                            self.blue_locations.pop((token, connection))
+                        if not self.is_blue(token, nickname):
+                            self.red_locations.pop((token, connection))
+
                     self._send_message(connection, (DISCONNECT_MESSAGE, "Disconnected from the server"))
                 elif msg[0] == UPDATE_LOCATION:  # message contains client's updated location
                     with lock:
-                        self.client_locations[(msg[1][0], connection)] = msg[1][1]
+                        # self.client_locations[(msg[1][0], connection)] = msg[1][1]
+                        if self.is_blue(msg[1][0], msg[1][1][0]):
+                            self.blue_locations[(msg[1][0], connection)] = msg[1][1]
+                        if not self.is_blue(msg[1][0], msg[1][1][0]):
+                            self.red_locations[(msg[1][0], connection)] = msg[1][1]
+
                 elif msg[0] == REQUEST_LOCATIONS:  # client requested all teammates' locations
+
+                    token, nickname = msg[1].split(':', 1)
+                    is_blue = self.is_blue(token, nickname)
+
                     with lock:
                         locations = []
-                        for key in self.client_locations.keys():
-                            if key[0] == msg[1]:
-                                locations.append(self.client_locations[key])
+                        # for key in self.client_locations.keys():
+                        #    if key[0] == token:
+                        #        locations.append(self.client_locations[key])
+                        if is_blue:
+                            for key in self.blue_locations.keys():
+                                if key[0] == token:
+                                    locations.append(self.blue_locations[key])
+                        if not is_blue:
+                            for key in self.red_locations.keys():
+                                if key[0] == token:
+                                    locations.append(self.red_locations[key])
+
                     reply = (REQUEST_LOCATIONS, locations)
                 elif msg[0] == INIT_MESSAGE:  # client setup
-                    token, name = msg[1].split(':', 1)
+                    token, name, team = msg[1].split(':', 2)
                     with lock:
                         if token in self.tokens:
-                            self.client_locations.update({(token, connection): (name, -1, -1)})
+                            # self.client_locations.update({(token, connection): (name, -1, -1)})
+                            if(team == "R"):
+                                self.red_locations.update({(token, connection): (name, -1, -1)})
+                            if (team == "B"):
+                                self.blue_locations.update({(token, connection): (name, -1, -1)})
+                            # else: TODO: else for host to see all teams?
+
                         else:
                             print("Incorrect token")
 

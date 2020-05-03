@@ -38,12 +38,24 @@
         cols: 1
 
         TextInput:
-            id: token
+            id: nickname
             multiline: False
 
-        Button:
-            text: "Connect"
-            on_release: app.root.current = "viewer"
+        TextInput:
+            id: ip
+            multiline: False
+
+        TextInput:
+            id: token
+            multiline: False
+        GridLayout:
+            cols: 2
+            Button:
+                text: "Connect BLUE"
+                on_release: app.root.current = "viewer"
+            Button:
+                text: "Connect RED"
+                on_release: app.root.current = "viewer"
 
         Button:
             text: "Generate new token"

@@ -115,17 +115,17 @@ class Client:
 # hardcoded testing
 x = Client().get_instance()
 x.connect(SERVER)
-x.send_message_via_client("#ABCD:Jakub Solecki", INIT_MESSAGE)  # token:username
+x.send_message_via_client("#ABCD:Jakub Solecki:R", INIT_MESSAGE)  # token:username
 input()
 x.send_message_via_client("Hello world!", "TEST")
 input()
-x.send_message_via_client("#ABCD", REQUEST_LOCATIONS)
+x.send_message_via_client("#ABCD:Jakub Solecki", REQUEST_LOCATIONS)
 input()
 data = ("Jakub Solecki", 50.458673, 51.906735)
 x.send_message_via_client(("#ABCD", data), UPDATE_LOCATION)
 input()
-x.send_message_via_client("#ABCD", REQUEST_LOCATIONS)
+x.send_message_via_client("#ABCD:Jakub Solecki", REQUEST_LOCATIONS)
 input()
-x.send_message_via_client("#ABCD", DISCONNECT_MESSAGE)
+x.send_message_via_client("#ABCD:Jakub Solecki", DISCONNECT_MESSAGE)
 input("Press enter to exit")
 sys.exit()

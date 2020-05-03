@@ -29,8 +29,8 @@ class GpsModule():
         def update_gps_position(self, *arg, **kwargs):
             my_lat = kwargs['lat']
             my_lon = kwargs['lon']
-            my_lat = 50.0680966
-            my_lon = 19.9125399
+            #my_lat = 50.1680966
+            #my_lon = 19.8125399
             print("GPS POSITTION", my_lat, my_lon)
 
             blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
