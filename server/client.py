@@ -59,7 +59,7 @@ class Client:
         self._sockets = []
 
     # connect to server using it's ip <- will be provided form user input
-    def connect(self, server_ip):
+    def connect(self, server_ip=SERVER):
         if not self._connected:
             self._server_ip = server_ip
             self._connected = True
@@ -67,9 +67,9 @@ class Client:
             self._client.setblocking(False)
             self._sockets.append(self._client)
             # TODO: use in app
-            update_location_thread = threading.Thread(target=self._update_location)
-            update_location_thread.daemon = True  # TODO: consider potential consequences when exiting
-            update_location_thread.start()  # start updating current location
+            # update_location_thread = threading.Thread(target=self._update_location)
+            # update_location_thread.daemon = True  # TODO: consider potential consequences when exiting
+            # update_location_thread.start()  # start updating current location
             receive_messages_thread = threading.Thread(target=self._receive_message)
             receive_messages_thread.daemon = True  # TODO: consider potential consequences when exiting
             receive_messages_thread.start()  # start listening to the server messages
@@ -137,18 +137,19 @@ class Client:
 
 # hardcoded testing
 x = Client().get_instance()
-x.connect(SERVER)
-x.send_message_via_client("#ABCD:Jakub Solecki", INIT_MESSAGE)  # token:username
+x.connect()
 input()
-x.send_message_via_client("Hello world!", "TEST")
+x.send_message("#ABCD:Jakub Solecki", INIT_MESSAGE)  # token:username
 input()
-x.send_message_via_client("#ABCD", REQUEST_LOCATIONS)
+x.send_message("Hello world!", "TEST")
+input()
+x.send_message("#ABCD", REQUEST_LOCATIONS)
 input()
 data = ("Jakub Solecki", 50.458673, 51.906735)
-x.send_message_via_client(("#ABCD", data), UPDATE_LOCATION)
+x.send_message(("#ABCD", data), UPDATE_LOCATION)
 input()
-x.send_message_via_client("#ABCD", REQUEST_LOCATIONS)
+x.send_message("#ABCD", REQUEST_LOCATIONS)
 input()
-x.send_message_via_client("#ABCD", DISCONNECT_MESSAGE)
+x.send_message("#ABCD", DISCONNECT_MESSAGE)
 input("Press enter to exit")
 sys.exit()

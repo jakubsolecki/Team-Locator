@@ -74,7 +74,7 @@ class Server:
             if msg_length:
                 msg_length = int(msg_length)
                 msg = pickle.loads(client_socket.recv(msg_length))
-                reply = "Message received!"  # TODO: remove in final version (debug purposes only)
+                reply = "[SERVER RESPONSE] Message received!"  # TODO: remove in final version (debug purposes only)
 
                 if msg[0] == DISCONNECT_MESSAGE:  # disconnect current client
                     self._client_locations.pop((msg[1], client_socket))
@@ -88,7 +88,7 @@ class Server:
                 elif msg[0] == REQUEST_LOCATIONS:  # client requested all teammates' locations
                     locations = []
                     for key in self._client_locations.keys():
-                        if key[0] == msg[1] and key[1] != client_socket:  # fetch only clients with same token
+                        if key[0] == msg[0]:  # fetch only clients with same token
                             locations.append(self._client_locations[key])
                     locations.append(self._client_locations[(msg[0], client_socket)])  # client is always first
                     reply = (REQUEST_LOCATIONS, locations)
