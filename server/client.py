@@ -19,7 +19,7 @@ General TODO:
 '''
 
 
-# ================== Client is a singleton so it must always be created/accessed using get_instance() ==================
+# ============== Client is a singleton therefore it must always be created/accessed using get_instance() ==============
 class Client:
     HEADER_SIZE = 64
     PORT = 5050
@@ -48,7 +48,7 @@ class Client:
         else:
             Client.__instance = self
 
-        self._client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_ip = None
         self._token = None
         self._name = None
@@ -61,19 +61,19 @@ class Client:
         if not self._connected:
             self._server_ip = server_ip
             self._connected = True
-            self._client.connect((server_ip, self.PORT))
-            self._client.setblocking(False)
-            self._sockets.append(self._client)
+            self._my_socket.connect((server_ip, self.PORT))
+            self._my_socket.setblocking(False)
+            self._sockets.append(self._my_socket)
             # TODO: use in app
             # update_location_thread = threading.Thread(target=self._update_location)
             # update_location_thread.daemon = True  # TODO: consider potential consequences on exit
             # update_location_thread.start()  # start updating current location
             receive_messages_thread = threading.Thread(target=self._receive_message)
-            receive_messages_thread.daemon = True  # TODO: consider potential consequences on exit
+            receive_messages_thread.daemon = True
             receive_messages_thread.start()  # start listening to the server messages
-            fetch_locations_thread = threading.Thread(target=self._fetch_locations_from_server())
-            fetch_locations_thread.daemon = True
-            fetch_locations_thread.start()
+            # fetch_locations_thread = threading.Thread(target=self._fetch_locations_from_server)
+            # fetch_locations_thread.daemon = True
+            # fetch_locations_thread.start()
 
     def send_message(self, msg_type, msg):
         if not self._initialised_flag and msg_type == self.INIT_MESSAGE:
@@ -86,7 +86,7 @@ class Client:
     def _fetch_locations_from_server(self):
         while True:
             time.sleep(5)
-            self.send_message(self._token, self.REQUEST_LOCATIONS)
+            self.send_message(self.REQUEST_LOCATIONS, self._token)
 
     # send current location to server every 10 seconds
     def _update_location(self):
@@ -105,22 +105,23 @@ class Client:
         send_length = str(msg_length).encode(self.FORMAT)
         send_length += b' ' * (self.HEADER_SIZE - len(send_length))
         try:
-            self._client.send(send_length)  # first sending length
-            self._client.send(message)  # then actual message
+            self._my_socket.send(send_length)  # first sending length
+            self._my_socket.send(message)  # then actual message
         except OSError:
-            self._connected = False  # TODO: local flag?
-            self._client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            while not self._connected:
+            connected = False
+            self._my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            while not connected:
                 try:
-                    self._client.connect((self._server_ip, self.PORT))
-                    self._connected = True
+                    self._my_socket.connect((self._server_ip, self.PORT))
+                    connected = True
                     print("Reconnected successfully!")
                 except OSError:
                     time.sleep(2)
 
     # listen to messages from the server
     def _receive_message(self):
-        while True:
+        rlock = threading.RLock()
+        while self._connected:
             read_sockets, _, exception_sockets = select.select(self._sockets, [], self._sockets)
             for notified_socket in read_sockets:
                 try:
@@ -131,10 +132,13 @@ class Client:
 
                         # TODO: handling received messages according to their content
                         if msg[0] == self.REQUEST_LOCATIONS:
-                            #  update list of positions (with RLock I guess)
-                            pass
+                            with rlock:
+                                #  update list of positions
+                                pass
                         elif msg[0] == self.DISCONNECT_MESSAGE:
                             self._connected = False
+                            self._my_socket.shutdown(socket.SHUT_RDWR)
+                            self._my_socket.close()
                             print(msg[1])
                         elif msg[0] == self.REQUEST_TOKENS:
                             pass
@@ -147,7 +151,6 @@ class Client:
 
                 except OSError as errmsg:
                     print(f"[ERROR] An error occurred. Error code: {errmsg.errno}\nMessage: {errmsg.strerror}")
-
 
 
 # hardcoded testing

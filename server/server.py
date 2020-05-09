@@ -9,6 +9,8 @@ from string import ascii_uppercase
 '''
 So far server works as long as all devices are within same wifi. Global version coming soon.
 TODO:
+    - !!! Changing strategy to global server !!!
+        - Separate thread-session for each game
     - Signing pickle data with hmac (and checking it before unpickling)
     - Improve security (SSL, signing pickles with hmac, allowing only few types to be unpickled)
     - Change pickle to json?
