@@ -4,7 +4,6 @@ import pickle
 import threading
 import time
 import sys
-import errno
 import time
 
 '''
@@ -31,6 +30,7 @@ class Client:
     DISCONNECT_MESSAGE = "!DISCONNECT"
     REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
     UPDATE_LOCATION = "!UPDATE_LOCATION"
+    REQUEST_TOKENS = "!REQUEST_TOKENS"
     ERROR = "!ERROR"
     __instance = None
 
@@ -75,7 +75,7 @@ class Client:
             fetch_locations_thread.daemon = True
             fetch_locations_thread.start()
 
-    def send_message(self, msg, msg_type):
+    def send_message(self, msg_type, msg):
         if not self._initialised_flag and msg_type == self.INIT_MESSAGE:
             self._initialised_flag = True
             self._token, self._name = msg.split(':', 1)
@@ -123,36 +123,48 @@ class Client:
         while True:
             read_sockets, _, exception_sockets = select.select(self._sockets, [], self._sockets)
             for notified_socket in read_sockets:
-                msg_length = notified_socket.recv(self.HEADER_SIZE).decode(self.FORMAT)
-                if msg_length:
-                    msg_length = int(msg_length)
-                    msg = pickle.loads(notified_socket.recv(msg_length))
+                try:
+                    msg_length = notified_socket.recv(self.HEADER_SIZE).decode(self.FORMAT)
+                    if msg_length:
+                        msg_length = int(msg_length)
+                        msg = pickle.loads(notified_socket.recv(msg_length))
 
-                    # TODO: handling received messages according to their content
-                    if msg[0] == self.REQUEST_LOCATIONS:
-                        #  update list of positions (with RLock I guess)
-                        pass
-                    elif msg[0] == self.DISCONNECT_MESSAGE:
-                        self._connected = False
-                        print(msg[1])
-                    print(msg)
+                        # TODO: handling received messages according to their content
+                        if msg[0] == self.REQUEST_LOCATIONS:
+                            #  update list of positions (with RLock I guess)
+                            pass
+                        elif msg[0] == self.DISCONNECT_MESSAGE:
+                            self._connected = False
+                            print(msg[1])
+                        elif msg[0] == self.REQUEST_TOKENS:
+                            pass
+                        elif msg[0] == self.INIT_MESSAGE:
+                            pass
+                        elif msg[0] == self.ERROR:
+                            pass
+
+                        print(msg)
+
+                except OSError as errmsg:
+                    print(f"[ERROR] An error occurred. Error code: {errmsg.errno}\nMessage: {errmsg.strerror}")
+
 
 
 # hardcoded testing
 x = Client().get_instance()
 x.connect()
 input()
-x.send_message("#ABCD:Jakub Solecki", x.INIT_MESSAGE)  # token:username
+x.send_message( x.INIT_MESSAGE, "#ABCD:Jakub Solecki")  # token:username
 input()
-x.send_message("Hello world!", "TEST")
+x.send_message("TEST", "Hello world!")
 input()
-x.send_message("#ABCD", x.REQUEST_LOCATIONS)
+x.send_message(x.REQUEST_LOCATIONS, "#ABCD")
 input()
 data = ("Jakub Solecki", 50.458673, 51.906735)
-x.send_message(("#ABCD", data), x.UPDATE_LOCATION)
+x.send_message(x.UPDATE_LOCATION, ("#ABCD", data))
 input()
-x.send_message("#ABCD", x.REQUEST_LOCATIONS)
+x.send_message(x.REQUEST_LOCATIONS, "#ABCD")
 input()
-x.send_message("#ABCD", x.DISCONNECT_MESSAGE)
+x.send_message(x.DISCONNECT_MESSAGE, "#ABCD")
 input("Press enter to exit")
 sys.exit()
