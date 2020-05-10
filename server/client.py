@@ -125,16 +125,14 @@ class Client:
         if self._connected:
             rLock = threading.RLock()
             msg = pickle.dumps(msg)
-            digest = hmac.new(self.KEY, msg, hashlib.sha256).hexdigest()
-            header = "%s" % digest  # .encode(self.FORMAT)
-            header = header.encode(self.FORMAT)
-            length = len(bytes(header)) + len(msg) + 2
+            digest = hmac.new(self.KEY, msg, hashlib.sha256).digest()
+            length = len(digest) + len(msg) + 2
             header_length = str(length).encode(self.FORMAT)
             header_length += b' ' * (self.HEADER_SIZE - len(header_length))
             try:
                 with rLock:
                     self._my_socket.send(header_length)  # first sending length
-                    self._my_socket.send(bytes(header) + b'  ' + msg)  # then actual message
+                    self._my_socket.send(digest + b'  ' + msg)  # then actual message
             except OSError as errmsg:
                 print(f"\n[ERROR] An error occurred while sending message\n"
                       f" Error code: {errmsg.errno}\n"
@@ -162,8 +160,8 @@ class Client:
                         header_length = int(header_length)
                         header = notified_socket.recv(header_length)
                         digest, pickled_msg = header.split(b'  ')
-                        check_digest = hmac.new(self.KEY, pickled_msg, hashlib.sha256).hexdigest()
-                        if not hmac.compare_digest(bytes(check_digest.encode(self.FORMAT)), bytes(pickled_msg)):
+                        check_digest = hmac.new(self.KEY, pickled_msg, hashlib.sha256).digest()
+                        if hmac.compare_digest(check_digest, digest):
                             msg = pickle.loads(pickled_msg)
                         else:
                             print("[ERROR] Message denied due to digests incompatibility")
