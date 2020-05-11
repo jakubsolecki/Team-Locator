@@ -1,5 +1,5 @@
 ![](https://img.shields.io/badge/python-3.7-blue)
-[![kivy](https://img.shields.io/badge/kivy-1.11.1-lightgrey)](https://kivy.org/#home)
+[![](https://img.shields.io/badge/kivy-1.11.1-lightgrey)](https://kivy.org/#home)
 ![](https://img.shields.io/badge/platform-android-green)
 
 # Team-Locator
