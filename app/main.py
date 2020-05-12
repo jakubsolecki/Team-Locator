@@ -23,7 +23,7 @@ class MainApp(App):
 
 if __name__ == "__main__":
     # Allows Internet connection on Android
-    os.environ['SSL_CERT_FILE'] = certifi.where()
+    # os.environ['SSL_CERT_FILE'] = certifi.where()
     MainApp().run()
 
 '''

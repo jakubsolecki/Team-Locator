@@ -1,4 +1,7 @@
 import kivy
+import ssl
+import certifi
+import geopy.geocoders
 from geopy.geocoders import Nominatim
 from mapview import MapView, MapMarker, MapSource
 from kivy.clock import Clock
@@ -11,6 +14,9 @@ from gpsblinker import GpsBlinker
 
 class TeamMapView(MapView):
     refresh_timer = None
+
+    ctx = ssl.create_default_context(cafile=certifi.where())
+    geopy.geocoders.options.default_ssl_context = ctx
 
     geolocator = Nominatim(user_agent="GeoTestApp")
     location = geolocator.geocode("21 Kawiory, Kraków")

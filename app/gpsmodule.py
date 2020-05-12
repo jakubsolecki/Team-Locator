@@ -18,7 +18,8 @@ class GpsModule():
                 if all([res for res in results]):
                     print("Got all permissions")
 
-            request_permissions([Permission.ACCESS_COARSE_LOCATION, Permission.ACCESS_FINE_LOCATION])
+            request_permissions([Permission.ACCESS_COARSE_LOCATION,
+				 Permission.ACCESS_FINE_LOCATION], callback)
 
 
         if platform == 'android':
@@ -26,7 +27,7 @@ class GpsModule():
             gps.configure(on_location=self.update_gps_position, on_status=self.on_auth_status)
             gps.start(minTime=1000, minDistance=0)
 
-        def update_gps_position(self, *arg, **kwargs):
+	def update_gps_position(self, *arg, **kwargs):
             my_lat = kwargs['lat']
             my_lon = kwargs['lon']
             #my_lat = 50.1680966
