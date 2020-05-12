@@ -27,28 +27,27 @@ class GpsModule():
             gps.configure(on_location=self.update_gps_position, on_status=self.on_auth_status)
             gps.start(minTime=1000, minDistance=0)
 
-	def update_gps_position(self, *arg, **kwargs):
-            my_lat = kwargs['lat']
-            my_lon = kwargs['lon']
-            #my_lat = 50.1680966
-            #my_lon = 19.8125399
-            print("GPS POSITTION", my_lat, my_lon)
+    def update_gps_position(self, *arg, **kwargs):
+        my_lat = kwargs['lat']
+        my_lon = kwargs['lon']
+        #my_lat = 50.1680966
+        #my_lon = 19.8125399
+        print("GPS POSITTION", my_lat, my_lon)
 
-            blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
-            blinker.lat = my_lat
-            blinker.lon = my_lon
+        blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
+        blinker.lat = my_lat
+        blinker.lon = my_lon
 
-            #centers map:
-            if not self.is_centered_map:
-                map = App.get_running_app().root.ids.mw.ids.map
-                map.center_on(my_lat, my_lon)
-                self.has_centered_map = True
+        #centers map:
+        if not self.is_centered_map:
+            map = App.get_running_app().root.ids.mw.ids.map
+            map.center_on(my_lat, my_lon)
+            self.has_centered_map = True
 
-        def on_auth_status(self, general_status, status_message):
-            if general_status == 'provider-enabled':
-                pass
-            else:
-                print("GPS ERROR, you need to enable all access")
-
-        pass
+    def on_auth_status(self, general_status, status_message):
+        if general_status == 'provider-enabled':
+            pass
+        else:
+            print("GPS ERROR, you need to enable all access")
+    pass
 
