@@ -11,13 +11,12 @@ import hashlib
 '''
 General TODO:
     - setup messages:
-        1) provide server ip from user input (glorious "connect" on app's main screen) by using connect(server_ip)
-        2) provide token and username from user input (separate token for each team), then send it to the server in INIT 
-        message (use send_message_via_client(msg, INIT_MESSAGE) with msg like "token:username"
+        - provide token and username from user input (separate token for each team), then send it to the server in INIT 
+          message (use send_message_via_client(msg, INIT_MESSAGE) with msg like "token:username"
+    - add options for manual connecting in gui (e.g button "connect" that'll connect app with server)
+    - displaying (maybe push notifications?) caught errors, returned messages (e.g "Incorrect token") etc
     - reading current gps location (maybe providing it from outside -> change update_location(name))
     - updating teammapview's list of teammates locations (in _receive_message() -> when message is a list)
-    - allow changing names?
-    - handling threads when closing app (mark as daemons?)
 '''
 
 
@@ -33,6 +32,7 @@ class Client:
     REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
     UPDATE_LOCATION = "!UPDATE_LOCATION"
     REQUEST_TOKENS = "!REQUEST_TOKENS"
+    GAIN_ADMIN = "!ADMIN"
     ERROR = "!ERROR"
     # this key is secret, plz don't read it
     KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
@@ -167,7 +167,7 @@ class Client:
                             print("[ERROR] Message denied due to digests incompatibility")
                             continue
 
-                        # TODO: handling received messages according to their content
+                        # handling received messages according to their content
                         if msg[0] == self.REQUEST_LOCATIONS:
                             with rLock:
                                 #  update list of positions
