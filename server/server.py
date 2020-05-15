@@ -5,7 +5,6 @@ import sys
 import select
 import hmac
 import hashlib
-import threading
 from random import choice
 from string import ascii_uppercase
 
@@ -21,7 +20,7 @@ class Server:
     REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
     UPDATE_LOCATION = "!UPDATE_LOCATION"
     REQUEST_TOKENS = "!REQUEST_TOKENS"
-    GAIN_ADMIN = "!ADMIN"
+    GAIN_ADMIN = "!GAIN_ADMIN"
     ERROR = "!ERROR"
     # this key is secret, plz don't read it
     KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
@@ -109,9 +108,11 @@ class Server:
                     self._sockets_list.remove(client_socket)
                     client_socket.close()
                     return None
+
                 elif msg[0] == self.UPDATE_LOCATION:  # update client's location
                     self._client_locations[(msg[1][0], client_socket)] = msg[1][1]
                     return None
+
                 elif msg[0] == self.REQUEST_LOCATIONS:  # send client his teammates' locations
                     locations = []
                     for key in self._client_locations.keys():
@@ -119,6 +120,7 @@ class Server:
                             locations.append(self._client_locations[key])
                     self._send_message(client_socket, (self.REQUEST_LOCATIONS, locations))
                     return None
+
                 elif msg[0] == self.INIT_MESSAGE:  # client setup
                     token, name = msg[1].split(':', 1)
                     if token in self._tokens:
@@ -129,11 +131,13 @@ class Server:
                     else:
                         self._send_message(client_socket, (self.ERROR, "Incorrect token"))
                     return None
+
                 elif msg[0] == self.REQUEST_TOKENS:  # generate and send tokens to admin
                     tokens_count = msg[1]
                     for i in range(tokens_count):
                         self.generate_token(7)
                     self._send_message(client_socket, (self.REQUEST_TOKENS, self._tokens))
+
                 elif msg[0] == self.GAIN_ADMIN:
                     if self._admin_token is None:
                         self._send_message(client_socket, (self.GAIN_ADMIN, self._admin_token))
@@ -142,6 +146,7 @@ class Server:
 
                 elif msg[0] == self.ERROR:
                     print(msg[1])
+
                 else:
                     print("Unknown message type")
                     return None
@@ -188,7 +193,7 @@ class Server:
 
     def _listen_to_sockets(self):
         while True:
-            read_sockets, _, exception_sockets = select.select(self._sockets_list, [], self._sockets_list)
+            read_sockets, _, exception_sockets = select.select(self._sockets_list, [], self._sockets_list, 600.0)
             for notified_socket in read_sockets:
                 if notified_socket == self._my_socket:
                     self._handle_new_connection()
@@ -207,9 +212,10 @@ class Server:
         print(f"[NEW TOKEN] {token}")
 
 
-# hardcoded testing
-s = Server()
-s.generate_token(10)
-# s.generate_token()
-# s.generate_token()
-s.start()
+if __name__ == "__main__":
+    # hardcoded testing
+    s = Server()
+    s.generate_token(10)
+    # s.generate_token()
+    # s.generate_token()
+    s.start()

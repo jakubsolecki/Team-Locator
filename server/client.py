@@ -32,7 +32,7 @@ class Client:
     REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
     UPDATE_LOCATION = "!UPDATE_LOCATION"
     REQUEST_TOKENS = "!REQUEST_TOKENS"
-    GAIN_ADMIN = "!ADMIN"
+    GAIN_ADMIN = "!GAIN_ADMIN"
     ERROR = "!ERROR"
     # this key is secret, plz don't read it
     KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
@@ -54,13 +54,14 @@ class Client:
             Client.__instance = self
 
         signal.signal(signal.SIGINT, self._sigint_handler)
-        self._my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._my_socket = None
         self._server_ip = None
         self._token = None
         self._name = None
         self._connected = False
         self._initialised_flag = False
         self._sockets = []
+        self._r_lock = threading.RLock()
 
     def _sigint_handler(self, signum, stack_frame):
         try:
@@ -78,11 +79,13 @@ class Client:
     def connect(self, server_ip=SERVER):
         if not self._connected:
             try:
-                self._server_ip = server_ip
-                self._my_socket.connect((server_ip, self.PORT))
-                self._my_socket.setblocking(False)
-                self._sockets.append(self._my_socket)
-                self._connected = True
+                with self._r_lock:
+                    self._my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self._server_ip = server_ip
+                    self._my_socket.connect((server_ip, self.PORT))
+                    self._my_socket.setblocking(False)
+                    self._sockets.append(self._my_socket)
+                    self._connected = True
                 receive_messages_thread = threading.Thread(target=self._receive_message)
                 receive_messages_thread.daemon = True
                 receive_messages_thread.start()  # start listening to the server messages
@@ -107,30 +110,29 @@ class Client:
     # requesting teammates' positions from server
     def _fetch_locations_from_server(self):
         while self._connected:
-            time.sleep(5)
             self.send_message(self.REQUEST_LOCATIONS, self._token)
+            time.sleep(5)
 
     # send current location to server every 10 seconds
     def _update_location(self):
         while self._connected:
-            time.sleep(10)
             # TODO: reading location from gps
             lon = 51.6363
             lat = 51.6363
             data_to_send = pickle.dumps((self.UPDATE_LOCATION, (self._token, (self._name, lon, lat))))
             self._send_(data_to_send)
+            time.sleep(10)
 
     # send message to the server
     def _send_(self, msg):
         if self._connected:
-            rLock = threading.RLock()
             msg = pickle.dumps(msg)
             digest = hmac.new(self.KEY, msg, hashlib.sha256).digest()
             length = len(digest) + len(msg) + 2
             header_length = str(length).encode(self.FORMAT)
             header_length += b' ' * (self.HEADER_SIZE - len(header_length))
             try:
-                with rLock:
+                with self._r_lock:
                     self._my_socket.send(header_length)  # first sending length
                     self._my_socket.send(digest + b'  ' + msg)  # then actual message
             except OSError as errmsg:
@@ -150,7 +152,6 @@ class Client:
 
     # listen to messages from the server
     def _receive_message(self):
-        rLock = threading.RLock()
         while self._connected:
             read_sockets, _, exception_sockets = select.select(self._sockets, [], self._sockets)
             for notified_socket in read_sockets:
@@ -169,15 +170,15 @@ class Client:
 
                         # handling received messages according to their content
                         if msg[0] == self.REQUEST_LOCATIONS:
-                            with rLock:
+                            with self._r_lock:
                                 #  update list of positions
                                 pass
                         elif msg[0] == self.DISCONNECT_MESSAGE:
-                            with rLock:
+                            with self._r_lock:
                                 self._connected = False
                                 self._my_socket.shutdown(socket.SHUT_RDWR)
                                 self._my_socket.close()
-                            # self._my_socket = None
+                                # self._my_socket = None
                             print(msg[1])
                         elif msg[0] == self.REQUEST_TOKENS:
                             pass
@@ -187,6 +188,15 @@ class Client:
                             pass
 
                         print(msg)
+
+                    else:
+                        with self._r_lock:
+                            print("[ERROR] Received empty msg. Closing socket...")
+                            self._connected = False
+                            self._my_socket.shutdown(socket.SHUT_RDWR)
+                            self._my_socket.close()
+                            print("Proceeding with reconnection")
+                            self.connect()
 
                 except OSError as errmsg:
                     print(f"\n[ERROR] An error occurred while reading message\n"
