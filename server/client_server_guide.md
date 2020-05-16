@@ -76,8 +76,8 @@ class instance. During the game session server stores:
   - __list of tokens__
  
 ### Security
-There's hardly any security on this server. The only implemented protection is signing pickle messages with hmac, so 
-that ony trusted data is unpickled on both sides of the connection.  
+There's hardly any security on this server. The only implemented protection is signing pickled messages with hmac so 
+that only trusted data is unpickled on both sides of the connection.  
 
 
 ## Client
