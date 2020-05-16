@@ -17,6 +17,10 @@ General TODO:
     - displaying (maybe push notifications?) caught errors, returned messages (e.g "Incorrect token") etc
     - reading current gps location (maybe providing it from outside -> change update_location(name))
     - updating teammapview's list of teammates locations (in _receive_message() -> when message is a list)
+    
+    - improve handling messages
+    - improve sending messages
+    - clean code
 '''
 
 
@@ -32,8 +36,10 @@ class Client:
     REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
     UPDATE_LOCATION = "!UPDATE_LOCATION"
     REQUEST_TOKENS = "!REQUEST_TOKENS"
-    GAIN_ADMIN = "!GAIN_ADMIN"
+    ADMIN_TOKEN = "/0000000/"
+    ADMIN_SETUP = "!ADMIN"
     ERROR = "!ERROR"
+
     # this key is secret, plz don't read it
     KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
 
@@ -62,6 +68,7 @@ class Client:
         self._initialised_flag = False
         self._sockets = []
         self._r_lock = threading.RLock()
+        self.connect()
 
     def _sigint_handler(self, signum, stack_frame):
         try:
@@ -89,6 +96,7 @@ class Client:
                 receive_messages_thread = threading.Thread(target=self._receive_message)
                 receive_messages_thread.daemon = True
                 receive_messages_thread.start()  # start listening to the server messages
+                # TODO: start thread after
                 # update_location_thread = threading.Thread(target=self._update_location)
                 # update_location_thread.daemon = True  # TODO: consider potential consequences on exit
                 # update_location_thread.start()  # start updating current location
@@ -157,6 +165,7 @@ class Client:
             for notified_socket in read_sockets:
                 try:
                     header_length = notified_socket.recv(self.HEADER_SIZE).decode(self.FORMAT)
+
                     if header_length:
                         header_length = int(header_length)
                         header = notified_socket.recv(header_length)
@@ -171,23 +180,20 @@ class Client:
                         # handling received messages according to their content
                         if msg[0] == self.REQUEST_LOCATIONS:
                             with self._r_lock:
-                                #  update list of positions
-                                pass
+                                print(msg[1])  # TODO: update list of positions
                         elif msg[0] == self.DISCONNECT_MESSAGE:
                             with self._r_lock:
                                 self._connected = False
                                 self._my_socket.shutdown(socket.SHUT_RDWR)
                                 self._my_socket.close()
-                                # self._my_socket = None
+                                print("Closed connection with server")  # TODO: display
                             print(msg[1])
                         elif msg[0] == self.REQUEST_TOKENS:
-                            pass
+                            print(msg[1])  # TODO: display
                         elif msg[0] == self.INIT_MESSAGE:
-                            pass
+                            print("Registration complete")  # TODO: display
                         elif msg[0] == self.ERROR:
-                            pass
-
-                        print(msg)
+                            print(msg[1])  # TODO: display
 
                     else:
                         with self._r_lock:
@@ -204,21 +210,22 @@ class Client:
                           f" Message: {errmsg.strerror}\n")
 
 
-# hardcoded testing
-x = Client().get_instance()
-x.connect()
-input()
-x.send_message(x.INIT_MESSAGE, "#ABCD:Jakub Solecki")  # token:username
-input()
-x.send_message("TEST", "Hello world!")
-input()
-x.send_message(x.REQUEST_LOCATIONS, "#ABCD")
-input()
-data = ("Jakub Solecki", 50.458673, 51.906735)
-x.send_message(x.UPDATE_LOCATION, ("#ABCD", data))
-input()
-x.send_message(x.REQUEST_LOCATIONS, "#ABCD")
-input()
-x.send_message(x.DISCONNECT_MESSAGE, "#ABCD")
-input("Press enter to exit")
-sys.exit()
+if __name__ == "__main__":
+    # hardcoded testing
+    x = Client().get_instance()
+    x.connect()
+    input()
+    x.send_message(x.INIT_MESSAGE, "#ABCD:Jakub Solecki")  # token:username
+    input()
+    x.send_message("TEST", "Hello world!")
+    input()
+    x.send_message(x.REQUEST_LOCATIONS, "#ABCD")
+    input()
+    data = ("Jakub Solecki", 50.458673, 51.906735)
+    x.send_message(x.UPDATE_LOCATION, ("#ABCD", data))
+    input()
+    x.send_message(x.REQUEST_LOCATIONS, "#ABCD")
+    input()
+    x.send_message(x.DISCONNECT_MESSAGE, "#ABCD")
+    input("Press enter to exit")
+    sys.exit()
