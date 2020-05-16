@@ -1,195 +1,215 @@
 import signal
 import socket
-import threading
 import pickle
 import sys
+import select
+import hmac
+import hashlib
+import threading
 from random import choice
 from string import ascii_uppercase
 
-'''
-So far server works as long as all devices are within same wifi. Global version coming soon.
-General TODO:   
-    - more civilised way to quit server than sending SIGINT xD
-    - gui
-In progress:
-    - TOKENS FOR DIFFERENT TEAMS XDDDD Totally forgot. Server will generate token for each team. To join the team client
-    must send INIT message with team's token (previously obtained from game supervisor, who also host the server) 
-'''
-
-# TODO: move to the class?
-HEADER_SIZE = 64
-PORT = 5050
-SERVER = socket.gethostbyname(socket.gethostname())  # + ".local" so that it's no longer localhost-only
-ADDRESS = (SERVER, PORT)
-FORMAT = 'utf-8'
-INIT_MESSAGE = "!INIT"
-DISCONNECT_MESSAGE = "!DISCONNECT"
-REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
-UPDATE_LOCATION = "!UPDATE_LOCATION"
-
 
 class Server:
-    clients = []  # connected clients TODO: (or not) define maximum number of clients (to be determined after testing)
-    tokens = []
-    # client_locations = {}  # dict of clients locations
-    blue_locations = {}
-    red_locations = {}
+    HEADER_SIZE = 64
+    PORT = 5050
+    SERVER = socket.gethostbyname(socket.gethostname())  # + ".local" so that it's no longer localhost-only
+    ADDRESS = (SERVER, PORT)
+    FORMAT = 'utf-8'
+    INIT_MESSAGE = "!INIT"
+    DISCONNECT_MESSAGE = "!DISCONNECT"
+    REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
+    UPDATE_LOCATION = "!UPDATE_LOCATION"
+    REQUEST_TOKENS = "!REQUEST_TOKENS"
+    GAIN_ADMIN = "!ADMIN"
+    ERROR = "!ERROR"
+    # this key is secret, plz don't read it
+    KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
 
     def __init__(self):
         print("[STARTING] server is starting...")
-        self.exit_request_flag = threading.Event()
         signal.signal(signal.SIGINT, self._sigint_handler)
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print("Socket created successfully")
+        self._my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self._sockets_list = [self._my_socket]  # storing active sockets
+        self._clients = {}  # storing info about clients
+        self._client_locations = {}  # storing clients' locations
+        self._tokens = []  # storing all generated (per session) tokens
+        self._admin_token = None  # special token reserved exclusively for an admin
+        self._admin_socket = None
+        print("Server socket created successfully")
 
     def _sigint_handler(self, signum, stack_frame):
         self.stop_server()
 
     # server abort
     def stop_server(self):
-        for client in self.clients:
-            if client:
-                client[0].close()
-        self.server.close()
+        print("\n[STOP] Server abort in progress...")
+        self.close_game()
         sys.exit()
 
     # server start
     def start(self):
         try:
-            self.server.bind(ADDRESS)
-        except socket.error as errmsg:
-            print("Bind failed. Error code: " + errmsg[0] + "\nMessage: " + errmsg[1])
-            sys.exit()
-        print("Socket bind complete")
-        self.server.listen()
-        print(f"[LISTENING] Server is listening on {SERVER}")
-        handle_new_connections_thread = threading.Thread(target=self._handle_new_connections)
-        handle_new_connections_thread.daemon = True
-        handle_new_connections_thread.start()
-        # self._handle_new_connections()
+            self._my_socket.bind(self.ADDRESS)
+        except OSError as errmsg:
+            print(f"\n[ERROR] Binding failed. Error code: {errmsg.errno}\n"
+                  f"Message:  {errmsg.strerror}\n"
+                  f"Server start failed. Try again\n")
+            # sys.exit()
 
-    def is_blue(self, token, nickname): # TODO: better way of checking team? Using connection? How does it work on reconnecting??
-        for key in self.blue_locations.keys():
-            if key[0] == token and self.blue_locations[key][0] == nickname:
-                return True
-        for key in self.red_locations.keys():
-            if key[0] == token and self.red_locations[key][0] == nickname:
-                return False
-        return False
+        print("Socket binding complete")
+        self._my_socket.listen()
+        print(f"[LISTENING] Server is listening on {self.SERVER}")
+        self._admin_token = ''.join(choice(ascii_uppercase) for _ in range(5))
+        print(f"[ADMINISTRATOR SETUP] Use this token to gain admin access: {self._admin_token}")
+        self._listen_to_sockets()
+
+    # cleaning after the game and getting ready for a new one
+    def close_game(self):
+        print("[CLEANING] Server is cleaning after the last game...")
+        self._clients = {}
+        self._tokens = []
+        self._client_locations = {}
+        for client_socket in self._sockets_list:
+            if client_socket != self._my_socket:
+                _ = self._send_message(client_socket, self.DISCONNECT_MESSAGE)
+                try:
+                    client_socket.shutdown(socket.SHUT_RDWR)
+                    client_socket.close()
+                except OSError as errmsg:
+                    print(f"\n[ERROR] An error occurred while closing socket {client_socket}\n"
+                          f" Error code: {errmsg.errno}\n"
+                          f" Message: {errmsg.strerror}\n")
+
+        self._sockets_list = [self._my_socket]
 
     #  handle connected client
-    def _handle_client(self, connection, address):
-        print(f"[NEW CONNECTION] {address} connected")
-        connected = True
-        lock = threading.RLock()  # provides safe access to shared resources (variables)
+    def _handle_message(self, client_socket):
+        try:
+            header_length = client_socket.recv(self.HEADER_SIZE).decode(self.FORMAT)
 
-        while connected:
-            msg_length = connection.recv(HEADER_SIZE).decode(FORMAT)
+            if header_length:
+                header_length = int(header_length)
+                header = client_socket.recv(header_length)
+                digest, pickled_msg = header.split(b'  ')
+                check_digest = hmac.new(self.KEY, pickled_msg, hashlib.sha256).digest()
+                if hmac.compare_digest(check_digest, digest):
+                    msg = pickle.loads(pickled_msg)
+                else:
+                    print("[ERROR] Message denied due to digests incompatibility")
+                    return None
 
-            if msg_length:
-                msg_length = int(msg_length)
-                msg = pickle.loads(connection.recv(msg_length))
-                reply = "Message received!"  # TODO: remove in final version (debug purposes only)
+                print(f"[{self._clients[client_socket][0]}:{self._clients[client_socket][1]}] {msg}")
 
-                if msg[0] == DISCONNECT_MESSAGE:  # disconnect current client
-                    connected = False
-                    token, nickname = msg[1].split(':', 1)
-                    with lock:
-                        # self.client_locations.pop((msg[1], connection))
-                        if self.is_blue(token, nickname):
-                            self.blue_locations.pop((token, connection))
-                        if not self.is_blue(token, nickname):
-                            self.red_locations.pop((token, connection))
+                if msg[0] == self.DISCONNECT_MESSAGE:  # disconnect current client
+                    self._client_locations.pop((msg[1], client_socket))
+                    print(f"Closing connection for {self._clients[client_socket][0]}:{self._clients[client_socket][1]}")
+                    self._clients.pop(client_socket)
+                    self._sockets_list.remove(client_socket)
+                    client_socket.close()
+                    return None
+                elif msg[0] == self.UPDATE_LOCATION:  # update client's location
+                    self._client_locations[(msg[1][0], client_socket)] = msg[1][1]
+                    return None
+                elif msg[0] == self.REQUEST_LOCATIONS:  # send client his teammates' locations
+                    locations = []
+                    for key in self._client_locations.keys():
+                        if (key[0] == msg[1] or key[0] == self._admin_token) and key[1] != client_socket:
+                            locations.append(self._client_locations[key])
+                    self._send_message(client_socket, (self.REQUEST_LOCATIONS, locations))
+                    return None
+                elif msg[0] == self.INIT_MESSAGE:  # client setup
+                    token, name = msg[1].split(':', 1)
+                    if token in self._tokens:
+                        self._client_locations.update({(token, client_socket): (name, -1, -1)})
+                        self._send_message(client_socket, (self.INIT_MESSAGE, "Setup complete"))
+                    elif token == self._admin_token:
+                        self._client_locations.update({(token, client_socket): ("Host", -1, -1)})
+                    else:
+                        self._send_message(client_socket, (self.ERROR, "Incorrect token"))
+                    return None
+                elif msg[0] == self.REQUEST_TOKENS:  # generate and send tokens to admin
+                    tokens_count = msg[1]
+                    for i in range(tokens_count):
+                        self.generate_token(7)
+                    self._send_message(client_socket, (self.REQUEST_TOKENS, self._tokens))
+                elif msg[0] == self.GAIN_ADMIN:
+                    if self._admin_token is None:
+                        self._send_message(client_socket, (self.GAIN_ADMIN, self._admin_token))
+                    else:
+                        self._send_message(client_socket, (self.GAIN_ADMIN, "Admin exists"))
 
-                    self._send_message(connection, (DISCONNECT_MESSAGE, "Disconnected from the server"))
-                elif msg[0] == UPDATE_LOCATION:  # message contains client's updated location
-                    with lock:
-                        # self.client_locations[(msg[1][0], connection)] = msg[1][1]
-                        if self.is_blue(msg[1][0], msg[1][1][0]):
-                            self.blue_locations[(msg[1][0], connection)] = msg[1][1]
-                        if not self.is_blue(msg[1][0], msg[1][1][0]):
-                            self.red_locations[(msg[1][0], connection)] = msg[1][1]
-
-                elif msg[0] == REQUEST_LOCATIONS:  # client requested all teammates' locations
-
-                    token, nickname = msg[1].split(':', 1)
-                    is_blue = self.is_blue(token, nickname)
-
-                    with lock:
-                        locations = []
-                        # for key in self.client_locations.keys():
-                        #    if key[0] == token:
-                        #        locations.append(self.client_locations[key])
-                        if is_blue:
-                            for key in self.blue_locations.keys():
-                                if key[0] == token:
-                                    locations.append(self.blue_locations[key])
-                        if not is_blue:
-                            for key in self.red_locations.keys():
-                                if key[0] == token:
-                                    locations.append(self.red_locations[key])
-
-                    reply = (REQUEST_LOCATIONS, locations)
-                elif msg[0] == INIT_MESSAGE:  # client setup
-                    token, name, team = msg[1].split(':', 2)
-                    with lock:
-                        if token in self.tokens:
-                            # self.client_locations.update({(token, connection): (name, -1, -1)})
-                            if(team == "R"):
-                                self.red_locations.update({(token, connection): (name, -1, -1)})
-                            if (team == "B"):
-                                self.blue_locations.update({(token, connection): (name, -1, -1)})
-                            # else: TODO: else for host to see all teams?
-
-                        else:
-                            print("Incorrect token")
-
-                print(f"[{address}] {msg}")
-                self._send_message(connection, reply)
-
-        with lock:
-            self.clients.remove((connection, address))
-        connection.close()
+                elif msg[0] == self.ERROR:
+                    print(msg[1])
+                else:
+                    print("Unknown message type")
+                    return None
+            else:
+                # TODO: change handling for not intended disconnection
+                pass
+                # print(f"Closing connection for {self._clients[client_socket][0]}:{self._clients[client_socket][1]}")
+                # self._clients.pop(client_socket)
+                # self._sockets_list.remove(client_socket)
+                # client_socket.close()
+        except OSError as errmsg:
+            print(f"\n[ERROR] An error occurred while handling message from {client_socket}\n"
+                  f" Error code: {errmsg.errno}\n"
+                  f" Message: {errmsg.strerror}\n")
 
     # send message to client
     def _send_message(self, connection, msg):
         msg = pickle.dumps(msg)
-        length = len(msg)
-        msg_length = str(length).encode(FORMAT)
-        msg_length += b' ' * (HEADER_SIZE - len(msg_length))
-        connection.send(msg_length)  # first sending length \
-        connection.send(msg)         # then actual message
+        digest = hmac.new(self.KEY, msg, hashlib.sha256).digest()
+        length = len(digest) + len(msg) + 2
+        header_length = str(length).encode(self.FORMAT)
+        header_length += b' ' * (self.HEADER_SIZE - len(header_length))
+        try:
+            connection.send(header_length)  # first sending length \
+            connection.send(digest + b'  ' + msg)         # then actual message
+        except OSError as errmsg:
+            print(f"\n[ERROR] An error occurred while sending message to {connection}\n"
+                  f" Error code: {errmsg.errno}\n"
+                  f" Message: {errmsg.strerror}\n")
+        return 1
 
-    # listen and connect new clients
-    def _handle_new_connections(self):
+    # accept new connections and append them to storage TODO: accept only trusted connections
+    def _handle_new_connection(self):
+        try:
+            client_socket, client_address = self._my_socket.accept()
+            self._sockets_list.append(client_socket)
+            self._clients[client_socket] = client_address
+            print(f"[NEW CONNECTION] Accepted new connection from {client_address}")
+            print(f"[ACTIVE CONNECTIONS] {len(self._sockets_list) - 1}\n")
+        except OSError as errmsg:
+            print(f"\n[ERROR] An error occurred while accepting new connection\n"
+                  f" Error code: {errmsg.errno}\n"
+                  f" Message: {errmsg.strerror}\n")
+
+    def _listen_to_sockets(self):
         while True:
-            connection, address = self.server.accept()
-            self.clients.append((connection, address))
-            handle_new_client_thread = threading.Thread(target=self._handle_client, args=(connection, address))
-            try:
-                handle_new_client_thread.daemon = True  # all spawned threads exist as long as the main thread does
-                handle_new_client_thread.start()  # handle communication with each client in a separate thread
-            except (KeyboardInterrupt, SystemExit, signal.SIGINT):
-                self.stop_server()
+            read_sockets, _, exception_sockets = select.select(self._sockets_list, [], self._sockets_list)
+            for notified_socket in read_sockets:
+                if notified_socket == self._my_socket:
+                    self._handle_new_connection()
+                else:
+                    self._handle_message(notified_socket)
 
-            print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 2}\n")
-
-    # generate token for each team. Must be done before calling start()
-    def generate_token(self):
-        # token = ''.join(choice(ascii_uppercase) for i in range(10))
+    # generate new token for each team
+    def generate_token(self, n):
+        # token = ''.join(choice(ascii_uppercase) for i in range(n))
         #
         # while token in self.tokens:
-        #     token = ''.join(choice(ascii_uppercase) for i in range(10))
+        #     token = ''.join(choice(ascii_uppercase) for i in range(n))
 
         token = "#ABCD"
-        self.tokens.append(token)
+        self._tokens.append(token)
         print(f"[NEW TOKEN] {token}")
 
 
 # hardcoded testing
 s = Server()
-s.generate_token()
+s.generate_token(10)
 # s.generate_token()
 # s.generate_token()
 s.start()
-input("Press enter to exit")

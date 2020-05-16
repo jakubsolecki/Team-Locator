@@ -11,6 +11,8 @@ from kivy.app import App
 from teammarker import TeamMarker
 from gpsblinker import GpsBlinker
 
+from app.client import Client
+
 
 class TeamMapView(MapView):
     refresh_timer = None
@@ -61,6 +63,10 @@ class TeamMapView(MapView):
         self.lat = (min_lat + max_lat)/2
 
         self.zoom = self.zoom + 1
+
+        client = Client.get_instance()
+        data = ("Jakub Solecki", 50.458673, 51.906735)
+        client.send_message(client.UPDATE_LOCATION, ("#ABCD", data))
 
         while True:
             d_lat, d_lon, u_lat, u_lon = self.get_bbox()

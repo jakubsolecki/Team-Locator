@@ -7,13 +7,17 @@
     zoom: 16
     lon: self.markers[0][0]
     lat: self.markers[0][1]
-    on_zoom:
-        self.zoom = 13 if self.zoom < 13 else self.zoom
+    #on_zoom:
+        #self.zoom = 13 if self.zoom < 13 else self.zoom
     on_lat:
         self.draw_markers()
     on_lon:
         self.draw_markers()
     GpsBlinker:
         id: blinker
-        lon: root.longitude
-        lat: root.latitude
+        #lon: root.longitude
+        #lat: root.latitude
+
+
+
+#REMOVED ZOOM LIMIT TO BE ABLE TO TEST GAME FROM DIFFERENT CITIES

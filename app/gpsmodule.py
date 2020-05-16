@@ -1,9 +1,10 @@
 from kivy.app import App
 from kivy.utils import platform
 
+
 class GpsModule():
     def run(self):
-        #TODO: UPDATE POSITION OF BLINKER
+        # TODO: UPDATE POSITION OF BLINKER
 
         # helps blinker blink:
         blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
@@ -19,8 +20,7 @@ class GpsModule():
                     print("Got all permissions")
 
             request_permissions([Permission.ACCESS_COARSE_LOCATION,
-				 Permission.ACCESS_FINE_LOCATION], callback)
-
+                                 Permission.ACCESS_FINE_LOCATION], callback)
 
         if platform == 'android':
             from plyer import gps
@@ -30,15 +30,15 @@ class GpsModule():
     def update_gps_position(self, *arg, **kwargs):
         my_lat = kwargs['lat']
         my_lon = kwargs['lon']
-        #my_lat = 50.1680966
-        #my_lon = 19.8125399
+        # my_lat = 50.1680966
+        # my_lon = 19.8125399
         print("GPS POSITTION", my_lat, my_lon)
 
         blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
         blinker.lat = my_lat
         blinker.lon = my_lon
 
-        #centers map:
+        # centers map:
         if not self.is_centered_map:
             map = App.get_running_app().root.ids.mw.ids.map
             map.center_on(my_lat, my_lon)
@@ -49,5 +49,5 @@ class GpsModule():
             pass
         else:
             print("GPS ERROR, you need to enable all access")
-    pass
 
+    pass
