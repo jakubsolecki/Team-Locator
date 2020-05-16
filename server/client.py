@@ -10,14 +10,6 @@ import hashlib
 
 '''
 General TODO:
-    - setup messages:
-        - provide token and username from user input (separate token for each team), then send it to the server in INIT 
-          message (use send_message_via_client(msg, INIT_MESSAGE) with msg like "token:username"
-    - add options for manual connecting in gui (e.g button "connect" that'll connect app with server)
-    - displaying (maybe push notifications?) caught errors, returned messages (e.g "Incorrect token") etc
-    - reading current gps location (maybe providing it from outside -> change update_location(name))
-    - updating teammapview's list of teammates locations (in _receive_message() -> when message is a list)
-    
     - improve handling messages
     - improve sending messages
     - clean code
@@ -96,13 +88,6 @@ class Client:
                 receive_messages_thread = threading.Thread(target=self._receive_message)
                 receive_messages_thread.daemon = True
                 receive_messages_thread.start()  # start listening to the server messages
-                # TODO: start thread after
-                # update_location_thread = threading.Thread(target=self._update_location)
-                # update_location_thread.daemon = True  # TODO: consider potential consequences on exit
-                # update_location_thread.start()  # start updating current location
-                # fetch_locations_thread = threading.Thread(target=self._fetch_locations_from_server)
-                # fetch_locations_thread.daemon = True
-                # fetch_locations_thread.start()
             except OSError as errmsg:
                 print(f"\n[ERROR] An error occurred while connecting to the server\n"
                       f" Error code: {errmsg.errno}\n"
@@ -127,7 +112,7 @@ class Client:
             # TODO: reading location from gps
             lon = 51.6363
             lat = 51.6363
-            data_to_send = pickle.dumps((self.UPDATE_LOCATION, (self._token, (self._name, lon, lat))))
+            data_to_send = (self.UPDATE_LOCATION, (self._token, (self._name, lon, lat)))
             self._send_(data_to_send)
             time.sleep(10)
 
@@ -147,16 +132,6 @@ class Client:
                 print(f"\n[ERROR] An error occurred while sending message\n"
                       f" Error code: {errmsg.errno}\n"
                       f" Message: {errmsg.strerror}\n")
-
-                # connected = False
-                # self._my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                # while not connected:
-                #     try:
-                #         self._my_socket.connect((self._server_ip, self.PORT))
-                #         connected = True
-                #         print("Reconnected successfully!")
-                #     except OSError:
-                #         time.sleep(2)
 
     # listen to messages from the server
     def _receive_message(self):
@@ -191,18 +166,25 @@ class Client:
                         elif msg[0] == self.REQUEST_TOKENS:
                             print(msg[1])  # TODO: display
                         elif msg[0] == self.INIT_MESSAGE:
+                            if msg[1] == "Setup complete":
+                                update_location_thread = threading.Thread(target=self._update_location)
+                                update_location_thread.daemon = True
+                                update_location_thread.start()  # start updating current location
+                                fetch_locations_thread = threading.Thread(target=self._fetch_locations_from_server)
+                                fetch_locations_thread.daemon = True
+                                fetch_locations_thread.start()
                             print("Registration complete")  # TODO: display
                         elif msg[0] == self.ERROR:
                             print(msg[1])  # TODO: display
 
                     else:
                         with self._r_lock:
-                            print("[ERROR] Received empty msg. Closing socket...")
+                            print("\n[ERROR] Received empty msg. Closing socket...")
                             self._connected = False
                             self._my_socket.shutdown(socket.SHUT_RDWR)
                             self._my_socket.close()
-                            print("Proceeding with reconnection")
-                            self.connect()
+                            self._my_socket = None
+                        return None
 
                 except OSError as errmsg:
                     print(f"\n[ERROR] An error occurred while reading message\n"
@@ -216,6 +198,7 @@ if __name__ == "__main__":
     x.connect()
     input()
     x.send_message(x.INIT_MESSAGE, "#ABCD:Jakub Solecki")  # token:username
+    #  for admin INIT message goes like "token:hostname:") after second : goes true for True and nothing for False
     input()
     x.send_message("TEST", "Hello world!")
     input()

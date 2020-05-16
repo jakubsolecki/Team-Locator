@@ -11,8 +11,6 @@ from string import ascii_uppercase
 
 '''
 TODO:
-    - chose whether admin is visible to everyone - done
-    - first digit of token is number of token is number of the team (0-9) - done
     - Admin handling
 '''
 
@@ -62,6 +60,7 @@ class Server:
     def stop_server(self):
         print("\n[STOP] Server abort in progress...")
         self.close_game()
+        print("[EXIT] Server shutdown")
         sys.exit()
 
     # server start
@@ -134,19 +133,13 @@ class Server:
                     return None
 
                 elif msg[0] == self.REQUEST_LOCATIONS:  # send client his teammates' locations
-                    locations = []
                     if msg[1] == self._admin.token:
-                        # for key in self._client_locations.keys():
-                        #     if key[1] != client_socket:
-                        #         locations.append(self._client_locations[key])
-                        locations = [value for key, value in self._client_locations.items() if key[1] != client_socket]
+                        locations = [value for key, value in self._client_locations.items() if key[1] != client_socket
+                                     and value[1] != -1]
                     else:
-                        for key in self._client_locations.keys():
-                            if (key[0] == msg[1] or (key[0] == self._admin.token and self._admin.is_visible)) and \
-                                    key[1] != client_socket:
-                                locations.append(self._client_locations[key])
-                            elif msg[1] == self._admin.token:
-                                locations.append(self._client_locations[key])
+                        locations = [value for key, value in self._client_locations.items() if
+                                     (key[0] == msg[1] or (key[0] == self._admin.token and self._admin.is_visible)) and
+                                     key[1] != client_socket and value[1] != -1]
                     self._send_message(client_socket, (self.REQUEST_LOCATIONS, locations))
                     return None
 
@@ -158,7 +151,9 @@ class Server:
                     elif token == self._admin.token:
                         if self._admin.socket is None:
                             self._admin.socket = client_socket
-                            self._client_locations.update({(token, client_socket): ("Host", -1, -1)})
+                            name, visibility = name.split(":")
+                            self._admin.is_visible = bool(visibility)
+                            self._client_locations.update({(token, client_socket): (name, -1, -1)})
                             self._send_message(client_socket, (self.ADMIN_SETUP, "Setup complete"))
                         else:
                             self._send_message(client_socket, (self.ERROR, "Admin has been already set"))
@@ -182,6 +177,8 @@ class Server:
                 print(f"Closing connection for {self._clients[client_socket][0]}:{self._clients[client_socket][1]}")
                 self._clients.pop(client_socket)
                 self._sockets_list.remove(client_socket)
+                if self._admin.socket == client_socket:
+                    self._admin.socket = None
                 client_socket.shutdown(socket.SHUT_RDWR)
                 client_socket.close()
 
