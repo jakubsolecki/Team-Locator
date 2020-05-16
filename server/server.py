@@ -11,7 +11,6 @@ from string import ascii_uppercase
 
 '''
 TODO:
-    - Admin handling
 '''
 
 
@@ -28,15 +27,14 @@ class Server:
     SERVER = socket.gethostbyname(socket.gethostname())  # + ".local" so that it's no longer localhost-only
     ADDRESS = (SERVER, PORT)
     FORMAT = 'utf-8'
-    INIT_MESSAGE = "!INIT"
-    DISCONNECT_MESSAGE = "!DISCONNECT"
+    INIT = "!INIT"
+    DISCONNECT = "!DISCONNECT"
     REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
     UPDATE_LOCATION = "!UPDATE_LOCATION"
     REQUEST_TOKENS = "!REQUEST_TOKENS"
-    GAIN_ADMIN = "!GAIN_ADMIN"
     ERROR = "!ERROR"
-    ADMIN_TOKEN = "/0000000/"
     ADMIN_SETUP = "!ADMIN"
+    ADMIN_TOKEN = "/0000000/"
 
     # this key is secret, plz don't read it
     KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
@@ -88,7 +86,7 @@ class Server:
         self._client_locations = {}
         for client_socket in self._sockets_list:
             if client_socket != self._my_socket:
-                _ = self._send_message(client_socket, self.DISCONNECT_MESSAGE)
+                _ = self._send_message(client_socket, self.DISCONNECT)
                 try:
                     client_socket.shutdown(socket.SHUT_RDWR)
                     client_socket.close()
@@ -117,7 +115,7 @@ class Server:
 
                 print(f"[{self._clients[client_socket][0]}:{self._clients[client_socket][1]}] {msg}")
 
-                if msg[0] == self.DISCONNECT_MESSAGE:  # disconnect current client and remove his data
+                if msg[0] == self.DISCONNECT:  # disconnect current client and remove his data
                     self._client_locations.pop((msg[1], client_socket))
                     print(f"Closing connection for {self._clients[client_socket][0]}:{self._clients[client_socket][1]}")
                     self._clients.pop(client_socket)
@@ -143,11 +141,11 @@ class Server:
                     self._send_message(client_socket, (self.REQUEST_LOCATIONS, locations))
                     return None
 
-                elif msg[0] == self.INIT_MESSAGE:  # client setup
+                elif msg[0] == self.INIT:  # client setup
                     token, name = msg[1].split(':', 1)
                     if token in self._tokens:
                         self._client_locations.update({(token, client_socket): (name, -1, -1)})
-                        self._send_message(client_socket, (self.INIT_MESSAGE, "Setup complete"))
+                        self._send_message(client_socket, (self.INIT, "Setup complete"))
                     elif token == self._admin.token:
                         if self._admin.socket is None:
                             self._admin.socket = client_socket
