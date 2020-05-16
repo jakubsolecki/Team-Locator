@@ -66,7 +66,7 @@ characters from the range of [A-Z]. The token must be specified in the INIT mess
 (see 'Message types and corresponding schemes' above), otherwise client won't be assigned to any team.
 
 ### A word about stored data
-Server is not connected to any database. Ale the stored data is considered to be volatile and is kept inside server's
+Server is not connected to any database. All stored data is considered to be volatile and is kept inside server's
 class instance. During the game session server stores: 
   - __list of currently opened sockets__ - consists only of currently opened and valid sockets. When socket is closed - 
     upon receiving DISCONNECT message or after receiving empty message.
