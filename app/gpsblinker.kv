@@ -4,18 +4,29 @@
     source: 'transparent.png'
     outer_opacity: 1
 
+    is_open: True
+    popup_size: [10,-40]
+
     canvas.before:
-        # Outer circle
+        # Animated circle
         Color:
-            rgba: self.color
+            rgba: self.animColor
         RoundedRectangle:
             radius: [root.blink_size/2.0, ]
             size: [root.blink_size, root.blink_size]
             pos: root.pos[0] + root.size[0]/2.0 - root.blink_size/2.0, root.pos[1] + root.size[1]/2.0 - root.blink_size/2.0
         # Inner Circle
         Color:
-            rgba: self.color + [-50,-50,-50,0.4]
+            rgba: self.color
         RoundedRectangle:
             radius: [root.default_blink_size/2.0, ]
             size: [root.default_blink_size, root.default_blink_size]
             pos: [root.pos[0] + root.size[0]/2.0 - root.default_blink_size/2.0, root.pos[1] + root.size[1]/2.0 - root.default_blink_size/2.0]
+
+
+    Label:
+        #color: #000000
+        outline_color: root.color
+        outline_width: 4
+        font_size: 13  # <---- NEEDS TESTING ON PHONE TO DECIDE SIZE OF FONT
+        text: root.text

@@ -7,7 +7,6 @@
     is_open: True
     popup_size: [10,-40]
 
-
     canvas:
         Color:
             rgba: self.color
@@ -17,8 +16,11 @@
             pos: [root.pos[0] + root.size[0]/2.0 - root.default_blink_size/2.0, root.pos[1] + root.size[1]/2.0 - root.default_blink_size/2.0]
 
     Label:
-        outline_color: [1, 0.3, 0.3, 1]
-        outline_width: 3
+        #color: [0,0,0,1]
+        outline_color: root.color
+        outline_width: 4
+        font_size: 13  # <---- NEEDS TESTING ON PHONE TO DECIDE SIZE OF FONT
         text: root.text
+
 
 

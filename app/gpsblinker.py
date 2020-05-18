@@ -1,15 +1,21 @@
-from kivy.garden.mapview import MapMarker
+from kivy.garden.mapview import MapMarkerPopup
 from kivy.animation import Animation
+from kivy.utils import get_color_from_hex
+
+from app.colordict import color_dictionary
 
 
-class GpsBlinker(MapMarker):
-    isRed = False
+class GpsBlinker(MapMarkerPopup):
+    text = ''
+    color = get_color_from_hex(color_dictionary[2])
 
-    #TODO: MAKE BETTER LOOKING POINTS
-    if isRed:
-        color = [1, 0.3, 0.3, 0.6]
-    else:
-        color = [0.1, 0.8, 1, 0.6]
+    animColor = []
+    zipper = zip(color, [0, 0, 0, 0.4])
+    for c_i, aC_i in zipper:
+        animColor.append(c_i - aC_i)  # We need alpha < 1 for blink animation
+
+    # TODO: MAKE BETTER LOOKING POINTS
+    # TODO: INHERIT FROM TeamMarker??
 
     def blink(self):
         self.outer_opacity = 1
@@ -20,8 +26,11 @@ class GpsBlinker(MapMarker):
         anim.bind(on_complete=self.reset)
         anim.start(self)
 
-
     def reset(self, *args):
         self.outer_opacity = 1
         self.blink_size = self.default_blink_size
         self.blink()
+
+    def __init__(self, text='PLACEHOLDER', *args, **kwargs):
+        self.text = text
+        super(GpsBlinker, self).__init__(*args, **kwargs)
