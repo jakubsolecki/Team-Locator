@@ -199,7 +199,8 @@ class Client:
 x = Client().get_instance()
 x.connect()
 input()
-x.send_message(x.INIT_MESSAGE, "#ABCD:Jakub Solecki")  # token:username
+x.send_message(x.INIT_MESSAGE, "#ABCD:Jakub Solecki")  # token:username     # JOINING SERVER
+x.send_message(x.INIT_MESSAGE, "#HARDCODEDTOKEN:Jakub Solecki")  # token:username     # HOSTING SERVER
 input()
 x.send_message("TEST", "Hello world!")
 input()

@@ -49,7 +49,7 @@ class TeamMapView(MapView):
 
     def add_mark(self, marker):
         lat, lon = marker[1], marker[0]
-        popup = TeamMarker(lat=lat, lon=lon)
+        popup = TeamMarker(lat=lat, lon=lon, text="Protagoras")
         self.add_widget(popup)
         pass
 
@@ -64,9 +64,6 @@ class TeamMapView(MapView):
 
         self.zoom = self.zoom + 1
 
-        client = Client.get_instance()
-        data = ("Jakub Solecki", 50.458673, 51.906735)
-        client.send_message(client.UPDATE_LOCATION, ("#ABCD", data))
 
         while True:
             d_lat, d_lon, u_lat, u_lon = self.get_bbox()

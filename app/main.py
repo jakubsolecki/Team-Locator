@@ -35,4 +35,10 @@ if __name__ == "__main__":
 '''
 TODO APP LIST:
 1. better looking points
+2. admin buttons:
+    generate tokens and how much
+    close game
+    
+first number in pass is color
+krotka(nazwa,lon, lat)
 '''

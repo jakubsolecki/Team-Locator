@@ -6,6 +6,15 @@
     MapWindow:
         id:mw
 
+
+<TeamItem>:
+    Label:
+        text: "Druzyna"
+
+<TeamList@GridLayout>
+
+
+
 <HostWindow>:
     switch: switch
     slider: slider
@@ -29,7 +38,7 @@
             min: 0
             max: 10
             step: 1
-            on_touch_up: root.createNodes()
+            on_touch_move: root.createNodes()
 
         TreeView:
             id: tv
