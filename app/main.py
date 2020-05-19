@@ -28,7 +28,15 @@ if __name__ == "__main__":
 
 '''
 TODO APP LIST:
-    krotka(nazwa,lon, lat)
     EXIT button for host isnt working
+        CAN SERVER BE HOSTED ON SAME PASSWORD? MUST BE CHECKED
     how others see host? Right now I guess the same color as others
+    deal with included libraries trash
+    clean cache 
+    do something when server is down???
+    
+MY WORRIES:
+    gui.py accesses client data without LOCKs
+    GPSMODULE OVERRIDES CLIENT'S _LON AND _LAT BUT IS THERE BETTER CHOICE?
 '''
+

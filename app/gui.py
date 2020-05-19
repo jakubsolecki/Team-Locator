@@ -27,7 +27,6 @@ class TokenWindow(Screen):
 
     def disconnect(self):
         self.client.send_message(self.client.DISCONNECT_MESSAGE, self.code.text)
-        print(str(self.code))
 
     def host_connect(self):
         self.client.connect()
@@ -111,15 +110,13 @@ class HostWindow(Screen):
         #START GPS MODULE HERE?
 
 
-
-
 class MapWindow(Screen):
     pass
 
 
 def show_popup(text):
     show = Pop(text)
-    popupWindow = Popup(title="Password for teams:", content=show, size_hint=(None, None), size=(400, 400))
+    popupWindow = Popup(title="Password for teams:", content=show, size_hint=(None, None), size=(200, 400))
     popupWindow.open()
 
 

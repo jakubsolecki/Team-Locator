@@ -8,6 +8,8 @@ import signal
 import hmac
 import hashlib
 
+from kivy.app import App
+
 '''
 General TODO:
     - improve handling messages
@@ -60,7 +62,10 @@ class Client:
         self._initialised_flag = False
         self._sockets = []
         self._r_lock = threading.RLock()
-        # self.connect()  # WE DONT DO THAT HERE
+        #TODO ---------------------------------------------------------------- CHANGES MADE HERE -----------------------------------
+        self._lon = 0
+        self._lat = 0
+        self._markers = []
 
     def _sigint_handler(self, signum, stack_frame):
         try:
@@ -94,7 +99,7 @@ class Client:
                       f" Message: {errmsg.strerror}\n")
 
     def send_message(self, msg_type, msg):
-        if  msg_type == self.INIT_MESSAGE and self._connected:
+        if  msg_type == self.INIT_MESSAGE and self._connected: #TODO ---------------------------------------------------------------- CHANGES MADE HERE -----------------------------------
             self._token, self._name = msg.split(':', 1)
 
         msg = (msg_type, msg)
@@ -109,10 +114,11 @@ class Client:
     # send current location to server every 10 seconds
     def _update_location(self):
         while self._connected:
-            # TODO: reading location from gps
-            lon = 51.6363
-            lat = 51.6363
-            data_to_send = (self.UPDATE_LOCATION, (self._token, (self._name, lon, lat)))
+            # TODO:--------------------------------------------------------CHANGE MADE HERE---------------------------------------------------
+            #lon = 59
+            #lat = 59
+            #data_to_send = (self.UPDATE_LOCATION, (self._token, (self._name, lon, lat)))
+            data_to_send = (self.UPDATE_LOCATION, (self._token, (self._name, self._lon, self._lat)))
             self._send_(data_to_send)
             time.sleep(10)
 
@@ -154,8 +160,10 @@ class Client:
 
                         # handling received messages according to their content
                         if msg[0] == self.REQUEST_LOCATIONS:
-                            with self._r_lock:
+                            with self._r_lock: #TODO ---------------------------------------------------------------- CHANGES MADE HERE -----------------------------------
+                                self._markers = msg[1]
                                 print(msg[1])  # TODO: update list of positions
+                                #print("Tu wypisuje client markery: " + str(self._markers))
                         elif msg[0] == self.DISCONNECT_MESSAGE:
                             with self._r_lock:
                                 self._connected = False
@@ -176,7 +184,7 @@ class Client:
                             print("Registration complete")  # TODO: display
                         elif msg[0] == self.ERROR:
                             print(msg[1])  # TODO: display
-                            if msg[1] == "Incorrect token":
+                            if msg[1] == "Incorrect token":  #TODO ---------------------------------------------------------------- CHANGES MADE HERE -----------------------------------
                                 with self._r_lock:
                                     self._token = None
 
@@ -224,10 +232,10 @@ x = Client().get_instance()
 x.connect()
 input()
 x.send_message(x.INIT_MESSAGE, "#ABCD:Jakub Solecki")  # token:username     # JOINING SERVER
-x.send_message(x.INIT_MESSAGE, "#HARDCODEDTOKEN:Jakub Solecki")  # token:username     # HOSTING SERVER
-input()
-x.send_message("TEST", "Hello world!")
-input()
+#x.send_message(x.INIT_MESSAGE, "#HARDCODEDTOKEN:Jakub Solecki")  # token:username     # HOSTING SERVER
+#input()
+#x.send_message("TEST", "Hello world!")
+#input()
 x.send_message(x.REQUEST_LOCATIONS, "#ABCD")
 input()
 data = ("Jakub Solecki", 50.458673, 51.906735)
@@ -238,4 +246,5 @@ input()
 x.send_message(x.DISCONNECT_MESSAGE, "#ABCD")
 input("Press enter to exit")
 sys.exit()
+
 '''

@@ -1,6 +1,7 @@
 from kivy.app import App
 from kivy.utils import platform
 
+from app.client import Client
 
 class GpsModule():
     def run(self):
@@ -30,13 +31,18 @@ class GpsModule():
     def update_gps_position(self, *arg, **kwargs):
         my_lat = kwargs['lat']
         my_lon = kwargs['lon']
-        # my_lat = 50.1680966
-        # my_lon = 19.8125399
+
         print("GPS POSITTION", my_lat, my_lon)
+
+        client = Client.get_instance()
 
         blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
         blinker.lat = my_lat
         blinker.lon = my_lon
+
+        client._lon = my_lon  # HUGELY UNRECOMMENDED
+        client._lat = my_lat
+
 
         # centers map:
         if not self.is_centered_map:
