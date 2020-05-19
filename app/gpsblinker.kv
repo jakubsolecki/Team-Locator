@@ -10,23 +10,22 @@
     canvas.before:
         # Animated circle
         Color:
-            rgba: self.animColor
+            rgba: root.animColor
         RoundedRectangle:
             radius: [root.blink_size/2.0, ]
             size: [root.blink_size, root.blink_size]
             pos: root.pos[0] + root.size[0]/2.0 - root.blink_size/2.0, root.pos[1] + root.size[1]/2.0 - root.blink_size/2.0
         # Inner Circle
         Color:
-            rgba: self.color
+            rgba: root.color
         RoundedRectangle:
             radius: [root.default_blink_size/2.0, ]
             size: [root.default_blink_size, root.default_blink_size]
             pos: [root.pos[0] + root.size[0]/2.0 - root.default_blink_size/2.0, root.pos[1] + root.size[1]/2.0 - root.default_blink_size/2.0]
 
-
     Label:
+        text: root.nick
         #color: #000000
         outline_color: root.color
         outline_width: 4
         font_size: 13  # <---- NEEDS TESTING ON PHONE TO DECIDE SIZE OF FONT
-        text: root.text

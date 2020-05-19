@@ -20,6 +20,8 @@ class TeamMapView(MapView):
     isHost = True
     markerArr = []
 
+    client = Client.get_instance()
+
     ctx = ssl.create_default_context(cafile=certifi.where())
     geopy.geocoders.options.default_ssl_context = ctx
 
@@ -31,6 +33,11 @@ class TeamMapView(MapView):
     # lat = droid.geocode(location['latitude'])
     longitude = location.longitude
     latitude = location.latitude
+
+
+    def __init__(self, **kwargs):
+        Clock.schedule_interval(self.get_markers_in_fov, 2)
+        super(TeamMapView, self).__init__(**kwargs)
 
     # Mock markers
     # TODO: all markers to single 2D-array, markers[0] is local position and move them to another class?
@@ -63,8 +70,9 @@ class TeamMapView(MapView):
                 self.add_mark(marker)
 
     def add_mark(self, marker):
+        colornum = App.get_running_app().root.ids.tw.colornum
         lat, lon = marker[1], marker[0]
-        popup = TeamMarker(lat=lat, lon=lon, nick="Protagoras", colorNum=2)
+        popup = TeamMarker(lat=lat, lon=lon, nick="Protagoras", colorNum=colornum)
         self.add_widget(popup)
         self.markerArr.append(popup)
 

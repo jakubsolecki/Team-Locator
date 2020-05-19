@@ -7,8 +7,8 @@ class GpsModule():
         # TODO: UPDATE POSITION OF BLINKER
 
         # helps blinker blink:
-        blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
-        blinker.blink()
+        #blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
+        #blinker.blink()
 
         has_centered_map = False
 

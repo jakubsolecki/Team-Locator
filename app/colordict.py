@@ -9,5 +9,5 @@ color_dictionary = {
     7:  '#510066',  # DARK PURPLE
     8:  '#0A24CC',  # BLUE
     9:  '#795C34',  # PEANUT
-    10: '#b94646',  # UGLY RED
+    10: '#FF00FF',  # WHITE // PROBS NOT ACCESSIBLE
 }

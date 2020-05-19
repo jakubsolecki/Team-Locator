@@ -63,11 +63,11 @@
             on_release: map.show_full_team()
             size: root.width, root.height * 0.1
             size_hint: None, None
-        Button:
-            text: "Leave"
-            on_release: app.root.current = "menu"
-            size: root.width, root.height * 0.1
-            size_hint: None, None
+        #Button:
+            #text: "Leave"
+            #on_release: app.root.current = "menu"          # I PO KLOPOCIE XD
+            #size: root.width, root.height * 0.1
+            #size_hint: None, None
 
 
 <TokenWindow>:
@@ -91,14 +91,12 @@
             Button:
                 text: "Connect Game"
                 on_release: app.root.current = "viewer"
+                on_release: app.root.ids.tw.player_connect()
             Button:
                 text: "Host Game"
                 on_release: app.root.current = "host"
                 on_release: app.root.ids.hw.create_nodes()
-                on_release: app.root.ids.tw.make_contact()
-
-
-
+                on_release: app.root.ids.tw.host_connect()
 
 
 <BtnPopup>:
@@ -107,6 +105,16 @@
         top: self.height and root.y + root.height
         text: "CODES"
         on_release: root.click()
+
+    Label:
+        outline_color: 0, 0, 0, 1
+        color: 1, 1, 1, 1
+        outline_width: 2
+        size: root.width * 0.2, root.height * 0.05
+        top: self.height and root.y + root.height
+        right: self.width and root.x + (root.width/1.65)
+        text: ">> ADMIN <<"
+
     Button:
         size: root.width * 0.2, root.height * 0.05
         right: self.width and root.x + root.width

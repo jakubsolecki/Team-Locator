@@ -13,15 +13,34 @@ from kivy.utils import get_color_from_hex
 class WindowManager(ScreenManager):
     pass
 
+from app.gpsblinker import GpsBlinker
 
 class TokenWindow(Screen):
     nick = ObjectProperty(None)
     code = ObjectProperty(None)
     client = Client.get_instance()
+    colornum = 0  # SHOULDN'T STAY THAT WAY
 
-    def make_contact(self):
+    def host_connect(self):
         self.client.connect()
 
+    def player_connect(self):
+        self.client.connect()
+        message = self.code.text + ":" + self.nick.text
+        print("Message sent to server: " + message)
+
+        # Takes second letter as number from 1 to 10: || #1ABCD means color 1 ||
+        if len(self.code.text) >= 2 and self.code.text[1].isdigit():
+            self.colornum = int(self.code.text[1])
+
+        map = App.get_running_app().root.ids.mw.ids.map
+        blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=self.nick.text, color_number=self.colornum)
+        map.add_widget(blinker)
+        blinker.blink()
+        #START HERE GPS MODULE????
+
+        client = Client.get_instance()
+        client.send_message(client.INIT_MESSAGE, message)
 
     pass
 
@@ -53,11 +72,19 @@ class HostWindow(Screen):
         message = password + ":" + nickname + ":" + str(self.hostVisible) + ":" + str(self.teamNumber)
         print("Message sent to server: " + message)
 
-        blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
-        blinker.text = "kozak"
 
         client = Client.get_instance()
         client.send_message(client.INIT_MESSAGE, message)
+
+        map = App.get_running_app().root.ids.mw.ids.map
+        blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=nickname, color_number=10)
+        map.add_widget(blinker)
+        blinker.blink()
+        map.add_host_buttons()
+
+        #START GPS MODULE HERE?
+
+
 
 
 class MapWindow(Screen):
