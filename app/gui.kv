@@ -90,11 +90,11 @@
             cols: 2
             Button:
                 text: "Connect Game"
-                on_release: app.root.current = "viewer"
+                #on_release: app.root.current = "viewer"
                 on_release: app.root.ids.tw.player_connect()
             Button:
                 text: "Host Game"
-                on_release: app.root.current = "host"
+                #on_release: app.root.current = "host"
                 on_release: app.root.ids.hw.create_nodes()
                 on_release: app.root.ids.tw.host_connect()
 

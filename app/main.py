@@ -16,18 +16,14 @@ from app.client import Client
 
 
 class MainApp(App):
+    code = ''
+
     def on_start(self):
-        atexit.register(disconnect)
         GpsModule().run()
         pass
 
 
-def disconnect():
-    client.send_message(client.DISCONNECT_MESSAGE, "#ABCD")
-
-
 if __name__ == "__main__":
-    client = Client.get_instance()
     MainApp().run()
 
 '''

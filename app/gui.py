@@ -8,12 +8,14 @@ from kivy.uix.widget import Widget
 from app.client import Client
 from app.colordict import color_dictionary
 from kivy.utils import get_color_from_hex
+from app.gpsblinker import GpsBlinker
 
+import atexit
 
 class WindowManager(ScreenManager):
     pass
 
-from app.gpsblinker import GpsBlinker
+
 
 class TokenWindow(Screen):
     nick = ObjectProperty(None)
@@ -21,11 +23,23 @@ class TokenWindow(Screen):
     client = Client.get_instance()
     colornum = 0  # SHOULDN'T STAY THAT WAY
 
+    def disconnect(self):
+        self.client.send_message(self.client.DISCONNECT_MESSAGE, self.code.text)
+        print(str(self.code))
+
     def host_connect(self):
         self.client.connect()
+        if not self.client._connected:
+            return
+        screen = App.get_running_app().root
+        screen.current = "host"
+        atexit.register(self.disconnect)
 
     def player_connect(self):
         self.client.connect()
+        if not self.client._connected:
+            return
+
         message = self.code.text + ":" + self.nick.text
         print("Message sent to server: " + message)
 
@@ -37,10 +51,16 @@ class TokenWindow(Screen):
         blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=self.nick.text, color_number=self.colornum)
         map.add_widget(blinker)
         blinker.blink()
-        #START HERE GPS MODULE????
+        # START HERE GPS MODULE????
 
         client = Client.get_instance()
         client.send_message(client.INIT_MESSAGE, message)
+
+        screen = App.get_running_app().root
+        screen.current = "viewer"
+
+        atexit.register(self.disconnect)
+
 
     pass
 
@@ -72,9 +92,8 @@ class HostWindow(Screen):
         message = password + ":" + nickname + ":" + str(self.hostVisible) + ":" + str(self.teamNumber)
         print("Message sent to server: " + message)
 
-
         client = Client.get_instance()
-        client.send_message(client.INIT_MESSAGE, message)
+        client.send_message(client.INIT_MESSAGE, message)   #MAKE SOME RETURN IF HOST OCCUPIED
 
         map = App.get_running_app().root.ids.mw.ids.map
         blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=nickname, color_number=10)
