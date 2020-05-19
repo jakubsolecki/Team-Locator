@@ -115,10 +115,11 @@ class Client:
     def _update_location(self):
         while self._connected:
             # TODO:--------------------------------------------------------CHANGE MADE HERE---------------------------------------------------
-            #lon = 59
-            #lat = 59
-            #data_to_send = (self.UPDATE_LOCATION, (self._token, (self._name, lon, lat)))
-            data_to_send = (self.UPDATE_LOCATION, (self._token, (self._name, self._lon, self._lat)))
+            # lon = 59
+            # lat = 59
+            # data_to_send = (self.UPDATE_LOCATION, (self._token, (self._name, lon, lat)))
+            with self._r_lock:
+                data_to_send = (self.UPDATE_LOCATION, (self._token, (self._name, self._lon, self._lat)))
             self._send_(data_to_send)
             time.sleep(10)
 
