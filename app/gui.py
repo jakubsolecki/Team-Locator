@@ -1,25 +1,28 @@
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
-
+from kivy.app import App
 from kivy.properties import ObjectProperty
 from kivy.uix.treeview import TreeView, TreeViewLabel, TreeViewNode
-
 from kivy.uix.popup import Popup
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
-
 from app.client import Client
-
-from kivy.uix.button import Button
+from app.colordict import color_dictionary
+from kivy.utils import get_color_from_hex
 
 
 class WindowManager(ScreenManager):
-    client = Client.get_instance()
-    # client.connect()
     pass
 
 
 class TokenWindow(Screen):
+    nick = ObjectProperty(None)
+    code = ObjectProperty(None)
+    client = Client.get_instance()
+
+    def make_contact(self):
+        self.client.connect()
+
+
     pass
 
 
@@ -31,28 +34,30 @@ class HostWindow(Screen):
     hostVisible = False
     teamNumber = 0
 
-    def createNodes(self):
+    def create_nodes(self):
         for node in [i for i in self.tv.iterate_all_nodes()]:
             self.tv.remove_node(node)
 
         for i in range(int(self.slider.value)):
             self.teamNumber = i + 1
             name = 'Druzyna ' + str(i + 1)
+            color = get_color_from_hex(color_dictionary[i + 1])
+            self.tv.add_node(TreeViewLabel(text=name, color=color))
 
-            # nodeTmp = self.tv.add_node(MyTreeNode(text=name))
-            # self.tv.add_node(MyTreeNode(text=name), nodeTmp)
-            self.tv.add_node(TreeViewLabel(text=name))
-
-    def sendToServer(self):
+    def send_to_server(self):
         self.hostVisible = self.switch.active
 
-        # for node in [i for i in self.tv.iterate_all_nodes()]:
-        # TODO: GATHER HERE INPUT TEXT FOR PASSWORD?
+        nickname = App.get_running_app().root.ids.tw.nick.text
+        password = App.get_running_app().root.ids.tw.code.text
 
-        print("Host visible set to: ", self.hostVisible)
-        print("Number of teams: ", self.teamNumber)
+        message = password + ":" + nickname + ":" + str(self.hostVisible) + ":" + str(self.teamNumber)
+        print("Message sent to server: " + message)
 
-    pass
+        blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
+        blinker.text = "kozak"
+
+        client = Client.get_instance()
+        client.send_message(client.INIT_MESSAGE, message)
 
 
 class MapWindow(Screen):

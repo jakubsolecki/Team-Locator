@@ -1,5 +1,5 @@
 color_dictionary = {
-    0:  '#000000',  # BLACK // RESERVED FOR SERVER ADMIN
+    0:  '#000000',  # BLACK // RESERVED FOR SERVER ADMIN??
     1:  '#FF4C4C',  # RED
     2:  '#1ABDF4',  # CYAN
     3:  '#00AA00',  # GREEN

@@ -2,16 +2,18 @@
 
 <WindowManager>:
     TokenWindow:
+        id:tw
     HostWindow:
+        id:hw
     MapWindow:
         id:mw
 
 
 <HostWindow>:
+    name: "host"
     switch: switch
     slider: slider
     tv: tv
-    name: "host"
 
     GridLayout:
         cols: 1
@@ -27,10 +29,10 @@
 
         Slider:
             id: slider
-            min: 0
+            min: 1
             max: 10
             step: 1
-            on_touch_move: root.createNodes()
+            on_touch_move: root.create_nodes()
 
         TreeView:
             id: tv
@@ -40,13 +42,12 @@
 
         Button:
             text: "Connect"
-            on_release: root.sendToServer()
+            on_release: root.send_to_server()
+            on_release: app.root.current = "viewer"
 
         Button:
             text: "Go back"
             on_release: app.root.current = "menu"
-
-
 
 
 <MapWindow>:
@@ -67,23 +68,22 @@
             on_release: app.root.current = "menu"
             size: root.width, root.height * 0.1
             size_hint: None, None
-    #BtnPopup:
-
-
 
 
 <TokenWindow>:
     name: "menu"
+    nick:nick
+    code:code
 
     GridLayout:
         cols: 1
 
         TextInput:
-            id: nickname
+            id: nick
             multiline: False
 
         TextInput:
-            id: password
+            id: code
             multiline: False
 
         GridLayout:
@@ -94,6 +94,9 @@
             Button:
                 text: "Host Game"
                 on_release: app.root.current = "host"
+                on_release: app.root.ids.hw.create_nodes()
+                on_release: app.root.ids.tw.make_contact()
+
 
 
 

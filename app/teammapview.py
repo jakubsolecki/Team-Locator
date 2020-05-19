@@ -18,6 +18,7 @@ import app.gui
 class TeamMapView(MapView):
     refresh_timer = None
     isHost = True
+    markerArr = []
 
     ctx = ssl.create_default_context(cafile=certifi.where())
     geopy.geocoders.options.default_ssl_context = ctx
@@ -52,6 +53,10 @@ class TeamMapView(MapView):
         self.refresh_timer = Clock.schedule_once(self.get_markers_in_fov, 0.1)
 
     def get_markers_in_fov(self, *args):
+        for mark in self.markerArr:
+            self.remove_widget(mark)  # clear old widgets. Visible by user? Hope not. Efficient? HELL NAH
+        self.markerArr.clear()
+
         d_lat, d_lon, u_lat, u_lon = self.get_bbox()
         for marker in self.markers:
             if d_lat < marker[1] < u_lat and d_lon < marker[0] < u_lon:
@@ -61,6 +66,8 @@ class TeamMapView(MapView):
         lat, lon = marker[1], marker[0]
         popup = TeamMarker(lat=lat, lon=lon, nick="Protagoras", colorNum=2)
         self.add_widget(popup)
+        self.markerArr.append(popup)
+
         pass
 
     def show_full_team(self):  # centers map to middle of the team, not player
