@@ -40,7 +40,6 @@ class TeamMapView(MapView):
         super(TeamMapView, self).__init__(**kwargs)
 
     # Mock markers
-    # TODO: all markers to single 2D-array, markers[0] is local position and move them to another class?
     markers = [[longitude + 0.001, latitude - 0.001], [longitude + 0.0001, latitude + 0.001],
                [longitude + 0.01, latitude - 0.001], [longitude + 0.001, latitude - 0.01]]
 
@@ -64,10 +63,10 @@ class TeamMapView(MapView):
             self.remove_widget(mark)  # clear old widgets. Visible by user? Hope not. Efficient? HELL NAH
         self.markerArr.clear()
 
-        d_lat, d_lon, u_lat, u_lon = self.get_bbox()
+        #d_lat, d_lon, u_lat, u_lon = self.get_bbox()
         for marker in self.markers:
-            if d_lat < marker[1] < u_lat and d_lon < marker[0] < u_lon:
-                self.add_mark(marker)
+            #if d_lat < marker[1] < u_lat and d_lon < marker[0] < u_lon:
+            self.add_mark(marker)
 
     def add_mark(self, marker):
         colornum = App.get_running_app().root.ids.tw.colornum

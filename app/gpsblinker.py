@@ -9,14 +9,8 @@ from app.colordict import color_dictionary
 
 class GpsBlinker(MapMarkerPopup):
     animColor = []
-    # TODO: INHERIT FROM TeamMarker??
-    def set_properties(self, text, color_number):
-        self.text = text
-        self.color = get_color_from_hex(color_dictionary[color_number])
-        self.nick_label.text = text
-        with self.canvas:
-            Color(rgba=self.color)
 
+    # TODO: INHERIT FROM TeamMarker??
     def blink(self):
         self.outer_opacity = 1
 
@@ -31,7 +25,7 @@ class GpsBlinker(MapMarkerPopup):
         self.blink_size = self.default_blink_size
         self.blink()
 
-    def __init__(self, color_number=0,  nick='PLACEHOLDER', *args, **kwargs):
+    def __init__(self, color_number=0, nick='PLACEHOLDER', *args, **kwargs):
         self.colorNum = color_number
         self.color = get_color_from_hex(color_dictionary[color_number])
         self.nick = nick

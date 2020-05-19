@@ -1,3 +1,5 @@
+from time import sleep
+
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.app import App
 from kivy.properties import ObjectProperty
@@ -43,6 +45,14 @@ class TokenWindow(Screen):
         message = self.code.text + ":" + self.nick.text
         print("Message sent to server: " + message)
 
+        client = Client.get_instance()
+        client.send_message(client.INIT_MESSAGE, message)
+
+        sleep(1)    # NEEED TO SET LOCKS HERE, BUT RIGHT NOW SLEEP WORKS XDDD
+
+        if client._token is None:
+            return
+
         # Takes second letter as number from 1 to 10: || #1ABCD means color 1 ||
         if len(self.code.text) >= 2 and self.code.text[1].isdigit():
             self.colornum = int(self.code.text[1])
@@ -52,9 +62,6 @@ class TokenWindow(Screen):
         map.add_widget(blinker)
         blinker.blink()
         # START HERE GPS MODULE????
-
-        client = Client.get_instance()
-        client.send_message(client.INIT_MESSAGE, message)
 
         screen = App.get_running_app().root
         screen.current = "viewer"

@@ -28,6 +28,7 @@ if __name__ == "__main__":
 
 '''
 TODO APP LIST:
-    first number in pass is color
     krotka(nazwa,lon, lat)
+    EXIT button for host isnt working
+    how others see host? Right now I guess the same color as others
 '''

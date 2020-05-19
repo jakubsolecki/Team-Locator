@@ -94,9 +94,9 @@ class Client:
                       f" Message: {errmsg.strerror}\n")
 
     def send_message(self, msg_type, msg):
-        if not self._initialised_flag and msg_type == self.INIT_MESSAGE and self._connected:
-            self._initialised_flag = True
+        if  msg_type == self.INIT_MESSAGE and self._connected:
             self._token, self._name = msg.split(':', 1)
+
         msg = (msg_type, msg)
         self._send_(msg)
 
@@ -176,6 +176,9 @@ class Client:
                             print("Registration complete")  # TODO: display
                         elif msg[0] == self.ERROR:
                             print(msg[1])  # TODO: display
+                            if msg[1] == "Incorrect token":
+                                with self._r_lock:
+                                    self._token = None
 
                     else:
                         with self._r_lock:
