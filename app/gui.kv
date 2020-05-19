@@ -7,14 +7,6 @@
         id:mw
 
 
-<TeamItem>:
-    Label:
-        text: "Druzyna"
-
-<TeamList@GridLayout>
-
-
-
 <HostWindow>:
     switch: switch
     slider: slider
@@ -59,27 +51,25 @@
 
 <MapWindow>:
     name: "viewer"
-
     GridLayout:
         cols: 1
 
-        GridLayout:
-            cols: 1
-
-            TeamMapView:
-                id: map
+        TeamMapView:
+            id: map
 
         Button:
             text: "Show full team"
             on_release: map.show_full_team()
             size: root.width, root.height * 0.1
             size_hint: None, None
-
         Button:
             text: "Leave"
             on_release: app.root.current = "menu"
             size: root.width, root.height * 0.1
             size_hint: None, None
+    #BtnPopup:
+
+
 
 
 <TokenWindow>:
@@ -96,7 +86,6 @@
             id: password
             multiline: False
 
-
         GridLayout:
             cols: 2
             Button:
@@ -106,5 +95,25 @@
                 text: "Host Game"
                 on_release: app.root.current = "host"
 
-        #Button:
-        #    text: "Generate new token"
+
+
+
+<BtnPopup>:
+    Button:
+        size: root.width * 0.2, root.height * 0.05
+        top: self.height and root.y + root.height
+        text: "CODES"
+        on_release: root.click()
+    Button:
+        size: root.width * 0.2, root.height * 0.05
+        right: self.width and root.x + root.width
+        top: self.height and root.y + root.height
+        text: "STOP"
+        on_release: root.click() #TOCHANGE
+
+
+<Pop>:
+    Label:
+        text: root.text
+        size_hint: 0.6, 0.2
+        pos_hint: {"x":0.2, "top":1}

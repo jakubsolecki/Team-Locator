@@ -1,15 +1,21 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
-from teammapview import TeamMapView
+
 from kivy.properties import ObjectProperty
 from kivy.uix.treeview import TreeView, TreeViewLabel, TreeViewNode
 
+from kivy.uix.popup import Popup
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.widget import Widget
+
 from app.client import Client
+
+from kivy.uix.button import Button
 
 
 class WindowManager(ScreenManager):
     client = Client.get_instance()
-    #client.connect()
+    # client.connect()
     pass
 
 
@@ -30,11 +36,11 @@ class HostWindow(Screen):
             self.tv.remove_node(node)
 
         for i in range(int(self.slider.value)):
-            self.teamNumber = i+1
-            name = 'Druzyna ' + str(i+1)
+            self.teamNumber = i + 1
+            name = 'Druzyna ' + str(i + 1)
 
-            #nodeTmp = self.tv.add_node(MyTreeNode(text=name))
-            #self.tv.add_node(MyTreeNode(text=name), nodeTmp)
+            # nodeTmp = self.tv.add_node(MyTreeNode(text=name))
+            # self.tv.add_node(MyTreeNode(text=name), nodeTmp)
             self.tv.add_node(TreeViewLabel(text=name))
 
     def sendToServer(self):
@@ -49,11 +55,32 @@ class HostWindow(Screen):
     pass
 
 
-#class MyNode(BoxLayout):
-#    pass
-#class MyTreeNode(MyNode, TreeViewNode):
-#    pass
-
-
 class MapWindow(Screen):
     pass
+
+
+def show_popup(text):
+    show = Pop(text)
+    popupWindow = Popup(title="Password for teams:", content=show, size_hint=(None, None), size=(400, 400))
+    popupWindow.open()
+
+
+class Pop(FloatLayout):
+    text = "placeholder"
+
+    def __init__(self, text, **kwargs):
+        self.text = text
+        super(FloatLayout, self).__init__(**kwargs)
+
+    pass
+
+
+class BtnPopup(Widget):
+    text = ''
+
+    def click(self):
+        show_popup(text=self.text)
+
+    def __init__(self, text="PLACEHOLDER", *args, **kwargs):
+        super().__init__(**kwargs)
+        self.text = text

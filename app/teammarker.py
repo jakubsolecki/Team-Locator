@@ -7,9 +7,11 @@ from app.colordict import color_dictionary
 
 
 class TeamMarker(MapMarkerPopup):
-    text = 'placeholder'
-    color = get_color_from_hex(color_dictionary[2])
+    colorNum = 10
+    nick = 'placeholder'
+    color = get_color_from_hex(color_dictionary[colorNum])
 
-    def __init__(self, text, *args, **kwargs):
-        self.text = text
+    def __init__(self, nick, colorNum, *args, **kwargs):
+        self.colorNum = colorNum
+        self.nick = nick
         super(TeamMarker, self).__init__(*args, **kwargs)

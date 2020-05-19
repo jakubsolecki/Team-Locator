@@ -12,10 +12,12 @@ from teammarker import TeamMarker
 from gpsblinker import GpsBlinker
 
 from app.client import Client
+import app.gui
 
 
 class TeamMapView(MapView):
     refresh_timer = None
+    isHost = True
 
     ctx = ssl.create_default_context(cafile=certifi.where())
     geopy.geocoders.options.default_ssl_context = ctx
@@ -29,14 +31,22 @@ class TeamMapView(MapView):
     longitude = location.longitude
     latitude = location.latitude
 
-
     # Mock markers
-    # TODO: all markers to single 2D-array, markers[0] is local position and move them to another class?, add unique ID for each marker?
-    markers = [[longitude+ 0.001, latitude- 0.001], [longitude + 0.0001, latitude + 0.001], [longitude + 0.01, latitude - 0.001], [longitude + 0.001, latitude - 0.01]]
+    # TODO: all markers to single 2D-array, markers[0] is local position and move them to another class?
+    markers = [[longitude + 0.001, latitude - 0.001], [longitude + 0.0001, latitude + 0.001],
+               [longitude + 0.01, latitude - 0.001], [longitude + 0.001, latitude - 0.01]]
+
+    def add_host_buttons(self):
+        if self.isHost:
+            window = App.get_running_app().root.ids.mw
+            btn = app.gui.BtnPopup("Right now new button spawns on zoom. \n"
+                                   "Spawn single time after getting host via server\n"
+                                   "And improve displaying label on popup to handle 10 teams")
+            window.add_widget(btn)
 
     def draw_markers(self):
         try:
-           self.refresh_timer.cancel()
+            self.refresh_timer.cancel()
         except:  # TODO: remove?
             pass
         self.refresh_timer = Clock.schedule_once(self.get_markers_in_fov, 0.1)
@@ -49,7 +59,7 @@ class TeamMapView(MapView):
 
     def add_mark(self, marker):
         lat, lon = marker[1], marker[0]
-        popup = TeamMarker(lat=lat, lon=lon, text="Protagoras")
+        popup = TeamMarker(lat=lat, lon=lon, nick="Protagoras", colorNum=2)
         self.add_widget(popup)
         pass
 
@@ -59,17 +69,15 @@ class TeamMapView(MapView):
         max_lon = max(i[0] for i in self.markers)
         max_lat = max(i[1] for i in self.markers)
 
-        self.lon = (min_lon + max_lon)/2
-        self.lat = (min_lat + max_lat)/2
+        self.lon = (min_lon + max_lon) / 2
+        self.lat = (min_lat + max_lat) / 2
 
         self.zoom = self.zoom + 1
-
 
         while True:
             d_lat, d_lon, u_lat, u_lon = self.get_bbox()
             if min_lat > d_lat and max_lat < u_lat and min_lon > d_lon and max_lon < u_lon:
                 return
-            self.zoom = self.zoom-1
+            self.zoom = self.zoom - 1
 
     pass
-
