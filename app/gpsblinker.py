@@ -1,16 +1,24 @@
 from kivy.garden.mapview import MapMarkerPopup
 from kivy.animation import Animation
-from kivy.properties import ObjectProperty
 from kivy.utils import get_color_from_hex
-from kivy.graphics import *
 
 from app.colordict import color_dictionary
 
 
-class GpsBlinker(MapMarkerPopup):
+class GpsBlinker(MapMarkerPopup):  # TODO: INHERIT FROM TeamMarker??
     animColor = []
 
-    # TODO: INHERIT FROM TeamMarker??
+    def __init__(self, color_number=0, nick='PLACEHOLDER', *args, **kwargs):
+        self.colorNum = color_number
+        self.color = get_color_from_hex(color_dictionary[color_number])
+        self.nick = nick
+
+        zipper = zip(self.color, [0, 0, 0, 0.4])
+        for c_i, aC_i in zipper:
+            self.animColor.append(c_i - aC_i)  # We need alpha < 1 for blink animation
+
+        super(GpsBlinker, self).__init__(*args, **kwargs)
+
     def blink(self):
         self.outer_opacity = 1
 
@@ -25,13 +33,3 @@ class GpsBlinker(MapMarkerPopup):
         self.blink_size = self.default_blink_size
         self.blink()
 
-    def __init__(self, color_number=0, nick='PLACEHOLDER', *args, **kwargs):
-        self.colorNum = color_number
-        self.color = get_color_from_hex(color_dictionary[color_number])
-        self.nick = nick
-
-        zipper = zip(self.color, [0, 0, 0, 0.4])
-        for c_i, aC_i in zipper:
-            self.animColor.append(c_i - aC_i)  # We need alpha < 1 for blink animation
-
-        super(GpsBlinker, self).__init__(*args, **kwargs)

@@ -5,11 +5,9 @@ import geopy.geocoders
 from geopy.geocoders import Nominatim
 from mapview import MapView, MapMarker, MapSource
 from kivy.clock import Clock
-from kivy.garden.mapview import MapMarkerPopup
 from kivy.app import App
 
 from teammarker import TeamMarker
-from gpsblinker import GpsBlinker
 
 from app.client import Client
 import app.gui
@@ -31,24 +29,23 @@ class TeamMapView(MapView):
     latitude = location.latitude
 
     # Mock markers
-    markers = []
-    #    ("ElKozako", longitude + 0.001, latitude - 0.001),
-    #    ("Shrek", longitude + 0.0001, latitude + 0.001),
-    #    ("Zbigi Kaleta", longitude + 0.01, latitude - 0.001),
-    #    ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
-    #]
+    markers = [
+        ("ElKozako", longitude + 0.001, latitude - 0.001),
+        ("Shrek", longitude + 0.0001, latitude + 0.001),
+        ("Zbigi Kaleta", longitude + 0.01, latitude - 0.001),
+        ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
+    ]
 
     def __init__(self, **kwargs):
         Clock.schedule_interval(self.get_markers_in_fov, 2)
         super(TeamMapView, self).__init__(**kwargs)
 
     def add_host_buttons(self):
-        if self.isHost:
-            window = App.get_running_app().root.ids.mw
-            btn = app.gui.BtnPopup("Right now new button spawns on zoom. \n"
-                                   "Spawn single time after getting host via server\n"
-                                   "And improve displaying label on popup to handle 10 teams")
-            window.add_widget(btn)
+        window = App.get_running_app().root.ids.mw
+        btn = app.gui.BtnPopup("Right now new button spawns on zoom. \n"
+                               "Spawn single time after getting host via server\n"
+                               "And improve displaying label on popup to handle 10 teams")
+        window.add_widget(btn)
 
     def draw_markers(self):
         try:
@@ -58,7 +55,7 @@ class TeamMapView(MapView):
         self.refresh_timer = Clock.schedule_once(self.get_markers_in_fov, 0.1)
 
     def get_markers_in_fov(self, *args):
-        self.markers = self.client._markers # TODO: REMOVE MOCK DATA AND UNCOMMENT IT ON REAL TESTING
+        # self.markers = self.client._markers # TODO: REMOVE MOCK DATA AND UNCOMMENT IT ON REAL TESTING
         for mark in self.markerArr:
             self.remove_widget(mark)  # clear old widgets. Visible by user? Hope not. Efficient? HELL NAH
         self.markerArr.clear()

@@ -42,8 +42,8 @@
 
         Button:
             text: "Connect"
-            on_release: root.send_to_server()
-            on_release: app.root.current = "viewer"
+            on_release: root.host_to_server()
+            #on_release: app.root.current = "viewer"
 
         Button:
             text: "Go back"
@@ -120,7 +120,8 @@
         right: self.width and root.x + root.width
         top: self.height and root.y + root.height
         text: "STOP"
-        on_release: root.click() #TOCHANGE
+        on_release: app.root.current = "menu" #TODO: Add another popup so you don't accidentally close game by a single touch XD
+        on_release: root.terminate_game()
 
 
 <Pop>:

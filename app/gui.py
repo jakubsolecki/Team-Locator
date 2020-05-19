@@ -1,9 +1,8 @@
 from time import sleep
-
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.app import App
 from kivy.properties import ObjectProperty
-from kivy.uix.treeview import TreeView, TreeViewLabel, TreeViewNode
+from kivy.uix.treeview import TreeViewLabel
 from kivy.uix.popup import Popup
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
@@ -11,19 +10,22 @@ from app.client import Client
 from app.colordict import color_dictionary
 from kivy.utils import get_color_from_hex
 from app.gpsblinker import GpsBlinker
-
 import atexit
+
 
 class WindowManager(ScreenManager):
     pass
 
+
+class MapWindow(Screen):
+    pass
 
 
 class TokenWindow(Screen):
     nick = ObjectProperty(None)
     code = ObjectProperty(None)
     client = Client.get_instance()
-    colornum = 0  # SHOULDN'T STAY THAT WAY
+    colornum = 0  # Expected to change. If players stay black something is wrong
 
     def disconnect(self):
         self.client.send_message(self.client.DISCONNECT_MESSAGE, self.code.text)
@@ -47,28 +49,28 @@ class TokenWindow(Screen):
         client = Client.get_instance()
         client.send_message(client.INIT_MESSAGE, message)
 
-        sleep(1)    # NEEED TO SET LOCKS HERE, BUT RIGHT NOW SLEEP WORKS XDDD
+        sleep(1)  # NEEED TO SET LOCKS HERE, BUT RIGHT NOW SLEEP WORKS XDDD
 
         if client._token is None:
             return
 
-        # Takes second letter as number from 1 to 10: || #1ABCD means color 1 ||
+        # Takes second letter as number from 0 to 9: || #1ABCD means color 1 ||
         if len(self.code.text) >= 2 and self.code.text[1].isdigit():
             self.colornum = int(self.code.text[1])
 
-        map = App.get_running_app().root.ids.mw.ids.map
+        # GPS always starts in our faculty building <3
         blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=self.nick.text, color_number=self.colornum)
+
+        map = App.get_running_app().root.ids.mw.ids.map
         map.add_widget(blinker)
         blinker.blink()
+
         # START HERE GPS MODULE????
 
         screen = App.get_running_app().root
         screen.current = "viewer"
 
         atexit.register(self.disconnect)
-
-
-    pass
 
 
 class HostWindow(Screen):
@@ -89,7 +91,7 @@ class HostWindow(Screen):
             color = get_color_from_hex(color_dictionary[i + 1])
             self.tv.add_node(TreeViewLabel(text=name, color=color))
 
-    def send_to_server(self):
+    def host_to_server(self):
         self.hostVisible = self.switch.active
 
         nickname = App.get_running_app().root.ids.tw.nick.text
@@ -99,7 +101,12 @@ class HostWindow(Screen):
         print("Message sent to server: " + message)
 
         client = Client.get_instance()
-        client.send_message(client.INIT_MESSAGE, message)   #MAKE SOME RETURN IF HOST OCCUPIED
+        client.send_message(client.INIT_MESSAGE, message)
+
+        sleep(1)
+
+        # if client._token is None: #TODO: REMOVE THIS COMMENT TO CHECK IF HOST ACUTALYY WORKS
+        #    return
 
         map = App.get_running_app().root.ids.mw.ids.map
         blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=nickname, color_number=10)
@@ -107,13 +114,13 @@ class HostWindow(Screen):
         blinker.blink()
         map.add_host_buttons()
 
-        #START GPS MODULE HERE?
+        # START GPS MODULE HERE?
+
+        screen = App.get_running_app().root
+        screen.current = "viewer"
 
 
-class MapWindow(Screen):
-    pass
-
-
+# -----------------------------These classes made for pop window of team tokens-----------------------------------------
 def show_popup(text):
     show = Pop(text)
     popupWindow = Popup(title="Password for teams:", content=show, size_hint=(None, None), size=(200, 400))
@@ -127,15 +134,17 @@ class Pop(FloatLayout):
         self.text = text
         super(FloatLayout, self).__init__(**kwargs)
 
-    pass
-
 
 class BtnPopup(Widget):
     text = ''
 
-    def click(self):
-        show_popup(text=self.text)
-
     def __init__(self, text="PLACEHOLDER", *args, **kwargs):
         super().__init__(**kwargs)
         self.text = text
+
+    def click(self):
+        show_popup(text=self.text)
+
+    def terminate_game(self):
+        #TODO To be impemented after server upgrade
+        pass
