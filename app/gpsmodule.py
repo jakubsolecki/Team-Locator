@@ -1,7 +1,6 @@
 from kivy.app import App
 from kivy.utils import platform
 
-
 from client import Client
 
 class GpsModule():
@@ -20,15 +19,8 @@ class GpsModule():
         else:
             GpsModule.__instance = self
 
-        self.update_blinker = False
 
     def run(self):
-        # TODO: UPDATE POSITION OF BLINKER
-
-        # helps blinker blink:
-        #blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
-        #blinker.blink()
-
         has_centered_map = False
 
         # persmissions on Android:
@@ -41,6 +33,7 @@ class GpsModule():
             request_permissions([Permission.ACCESS_COARSE_LOCATION,
                                  Permission.ACCESS_FINE_LOCATION], callback)
 
+    def start_updating(self):
         if platform == 'android':
             from plyer import gps
             gps.configure(on_location=self.update_gps_position, on_status=self.on_auth_status)
@@ -52,17 +45,11 @@ class GpsModule():
 
         print("GPS POSITTION", my_lat, my_lon)
 
+        blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
+        blinker.lat = my_lat
+        blinker.lon = my_lon
+
         client = Client.get_instance()
-
-        if self.update_blinker is True:
-            blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
-            blinker.lat = my_lat
-            blinker.lon = my_lon
-
-        #blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
-        #blinker.lat = my_lat
-        #blinker.lon = my_lon
-
         client._lon = my_lon  # HUGELY UNRECOMMENDED
         client._lat = my_lat
 

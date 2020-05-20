@@ -66,7 +66,7 @@ class TokenWindow(Screen):
         map.add_widget(blinker)
         blinker.blink()
 
-        GpsModule.get_instance().update_blinker = True
+        GpsModule.get_instance().start_updating()
 
         screen = App.get_running_app().root
         screen.current = "viewer"
@@ -115,7 +115,7 @@ class HostWindow(Screen):
         blinker.blink()
         map.add_host_buttons()
 
-        GpsModule.get_instance().update_blinker = True
+        GpsModule.get_instance().start_updating()
 
         screen = App.get_running_app().root
         screen.current = "viewer"
