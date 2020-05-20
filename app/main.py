@@ -12,11 +12,9 @@ import certifi
 import os
 import atexit
 
-from app.client import Client
-
 
 class MainApp(App):
-    code = ''
+    
 
     def on_start(self):
         GpsModule().run()

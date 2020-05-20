@@ -6,11 +6,12 @@ from kivy.uix.treeview import TreeViewLabel
 from kivy.uix.popup import Popup
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
-from app.client import Client
-from app.colordict import color_dictionary
+from client import Client
+from colordict import color_dictionary
 from kivy.utils import get_color_from_hex
-from app.gpsblinker import GpsBlinker
+from gpsblinker import GpsBlinker
 import atexit
+from gpsmodule import GpsModule
 
 
 class WindowManager(ScreenManager):
@@ -59,11 +60,13 @@ class TokenWindow(Screen):
             self.colornum = int(self.code.text[1])
 
         # GPS always starts in our faculty building <3
-        blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=self.nick.text, color_number=self.colornum)
+        blinker = GpsBlinker(lon=19.9225399, lat=50.0680966, nick=self.nick.text, color_number=self.colornum)
 
         map = App.get_running_app().root.ids.mw.ids.map
         map.add_widget(blinker)
         blinker.blink()
+
+        GpsModule().run()
 
         # START HERE GPS MODULE????
 
@@ -114,7 +117,7 @@ class HostWindow(Screen):
         blinker.blink()
         map.add_host_buttons()
 
-        # START GPS MODULE HERE?
+        GpsModule().run()
 
         screen = App.get_running_app().root
         screen.current = "viewer"

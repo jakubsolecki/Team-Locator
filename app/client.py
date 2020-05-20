@@ -8,8 +8,6 @@ import signal
 import hmac
 import hashlib
 
-from kivy.app import App
-
 '''
 General TODO:
     - improve handling messages
