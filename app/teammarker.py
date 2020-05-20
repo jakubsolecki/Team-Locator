@@ -4,7 +4,7 @@ from kivy.uix.label import Label
 from kivy.utils import get_color_from_hex
 from kivy.graphics import *
 
-from app.colordict import color_dictionary
+from colordict import color_dictionary
 
 
 class TeamMarker(MapMarkerPopup):

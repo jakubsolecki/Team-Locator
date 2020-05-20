@@ -12,14 +12,16 @@ import certifi
 import os
 import atexit
 
-from app.client import Client
-
 
 class MainApp(App):
-    code = ''
+    
 
     def on_start(self):
+<<<<<<< HEAD
         GpsModule.get_instance().run()
+=======
+        GpsModule().run()
+>>>>>>> 62b8dd759598175c0a11841986b5b7273278f737
         pass
 
 

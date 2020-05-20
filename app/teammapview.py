@@ -6,11 +6,10 @@ from geopy.geocoders import Nominatim
 from mapview import MapView, MapMarker, MapSource
 from kivy.clock import Clock
 from kivy.app import App
-
 from teammarker import TeamMarker
 
-from app.client import Client
-import app.gui
+from client import Client
+import gui
 
 
 class TeamMapView(MapView):
@@ -29,12 +28,21 @@ class TeamMapView(MapView):
     latitude = location.latitude
 
     # Mock markers
+<<<<<<< HEAD
+    markers = [
+        # ("ElKozako", longitude + 0.001, latitude - 0.001),
+        # ("Shrek", longitude + 0.0001, latitude + 0.001),
+        # ("Czeslaw Niemen", longitude + 0.01, latitude - 0.001),
+        # ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
+    ]
+=======
     markers = []
     #    ("ElKozako", longitude + 0.001, latitude - 0.001),
     #    ("Shrek", longitude + 0.0001, latitude + 0.001),
     #    ("Czeslaw Niemen", longitude + 0.01, latitude - 0.001),
     #    ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
     #]
+>>>>>>> 36dbdec003ecec928db3076e121bf831fac071da
 
     def __init__(self, **kwargs):
         Clock.schedule_interval(self.get_markers_in_fov, 2)

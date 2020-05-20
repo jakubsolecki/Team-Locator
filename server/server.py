@@ -94,6 +94,8 @@ class Server:
                           f" Message: {errmsg.strerror}\n")
 
         self._sockets_list = [self._my_socket]
+        self._admin.socket = None
+        self._admin.is_visible = None
 
     #  handle connected client
     def _handle_message(self, client_socket):
@@ -114,7 +116,7 @@ class Server:
                 print(f"[{self._clients[client_socket][0]}:{self._clients[client_socket][1]}] {msg}")
 
                 if msg[0] == self.DISCONNECT:  # disconnect current client and remove his data
-                    if msg[1] in self._tokens:
+                    if msg[1] in self._tokens and (msg[1], client_socket) in self._client_locations.keys():
                         self._client_locations.pop((msg[1], client_socket))
                     print(f"Closing connection for {self._clients[client_socket][0]}:{self._clients[client_socket][1]}")
                     self._clients.pop(client_socket)
@@ -143,15 +145,15 @@ class Server:
                 elif msg[0] == self.INIT:  # client setup
                     token, name = msg[1].split(':', 1)
                     if token in self._tokens:
-                        self._client_locations.update({(token, client_socket): (name, -1, -1)})
+                        self._client_locations.update({(token, client_socket): (name, 0, 0)})
                         self._send_message(client_socket, (self.INIT, "Setup complete"))
                     elif token == self._admin.token:
                         if self._admin.socket is None:
                             self._admin.socket = client_socket
-                            name, visibility,team_count = name.split(":")
+                            name, visibility, team_count = name.split(":")
                             self._token_count = team_count
                             self._admin.is_visible = bool(visibility)
-                            self._client_locations.update({(token, client_socket): (name, -1, -1)})
+                            self._client_locations.update({(token, client_socket): (name, 0, 0)})
                             self._send_message(client_socket, (self.ADMIN_SETUP, "Setup complete"))
                         else:
                             self._send_message(client_socket, (self.ERROR, "Admin has been already set"))

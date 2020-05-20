@@ -2,7 +2,7 @@ from kivy.garden.mapview import MapMarkerPopup
 from kivy.animation import Animation
 from kivy.utils import get_color_from_hex
 
-from app.colordict import color_dictionary
+from colordict import color_dictionary
 
 
 class GpsBlinker(MapMarkerPopup):  # TODO: INHERIT FROM TeamMarker??
