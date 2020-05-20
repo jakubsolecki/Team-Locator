@@ -6,7 +6,6 @@ from geopy.geocoders import Nominatim
 from mapview import MapView, MapMarker, MapSource
 from kivy.clock import Clock
 from kivy.app import App
-
 from teammarker import TeamMarker
 
 from app.client import Client
@@ -30,10 +29,10 @@ class TeamMapView(MapView):
 
     # Mock markers
     markers = [
-        ("ElKozako", longitude + 0.001, latitude - 0.001),
-        ("Shrek", longitude + 0.0001, latitude + 0.001),
-        ("Czeslaw Niemen", longitude + 0.01, latitude - 0.001),
-        ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
+        # ("ElKozako", longitude + 0.001, latitude - 0.001),
+        # ("Shrek", longitude + 0.0001, latitude + 0.001),
+        # ("Czeslaw Niemen", longitude + 0.01, latitude - 0.001),
+        # ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
     ]
 
     def __init__(self, **kwargs):
@@ -55,7 +54,7 @@ class TeamMapView(MapView):
         self.refresh_timer = Clock.schedule_once(self.get_markers_in_fov, 0.1)
 
     def get_markers_in_fov(self, *args):
-        # self.markers = self.client._markers # TODO: REMOVE MOCK DATA AND UNCOMMENT IT ON REAL TESTING
+        self.markers = self.client._markers # TODO: REMOVE MOCK DATA AND UNCOMMENT IT ON REAL TESTING
         for mark in self.markerArr:
             self.remove_widget(mark)  # clear old widgets. Visible by user? Hope not. Efficient? HELL NAH
         self.markerArr.clear()

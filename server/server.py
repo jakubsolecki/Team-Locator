@@ -114,7 +114,7 @@ class Server:
                 print(f"[{self._clients[client_socket][0]}:{self._clients[client_socket][1]}] {msg}")
 
                 if msg[0] == self.DISCONNECT:  # disconnect current client and remove his data
-                    if msg[1] in self._tokens:
+                    if msg[1] in self._tokens and (msg[1], client_socket) in self._client_locations.keys():
                         self._client_locations.pop((msg[1], client_socket))
                     print(f"Closing connection for {self._clients[client_socket][0]}:{self._clients[client_socket][1]}")
                     self._clients.pop(client_socket)

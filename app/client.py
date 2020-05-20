@@ -90,7 +90,6 @@ class Client:
                     self._my_socket.settimeout(20)
                     self._server_ip = server_ip
                     self._my_socket.connect((server_ip, self.PORT))
-                    # self._my_socket.setblocking(False)
                     self._sockets.append(self._my_socket)
                     self._connected = True
                 receive_messages_thread = threading.Thread(target=self._receive_message)
