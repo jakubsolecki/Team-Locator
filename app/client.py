@@ -15,24 +15,28 @@ General TODO:
     - clean code
 '''
 
+# TODO: set self._token after confirmation from server -> returns ERROR message that sets token to None again
+
+# TODO: Store all tokens if admin -> done. Needs testing
+
 
 # ============== Client is a singleton therefore it must always be created/accessed using get_instance() ==============
 class Client:
     HEADER_SIZE = 64
     PORT = 5050
-    SERVER = socket.gethostbyname(socket.gethostname())
-    # SERVER = '142.93.227.45'
+    # SERVER = socket.gethostbyname(socket.gethostname())
+    SERVER = '142.93.227.45'
     ADDRESS = (SERVER, PORT)
     FORMAT = 'utf-8'
     INIT_MESSAGE = "!INIT"
     DISCONNECT_MESSAGE = "!DISCONNECT"
     REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
     UPDATE_LOCATION = "!UPDATE_LOCATION"
-    REQUEST_TOKENS = "!REQUEST_TOKENS"
     ADMIN_TOKEN = "/0000000/"
     ADMIN_SETUP = "!ADMIN"
     ERROR = "!ERROR"
     CLOSE_GAME = "!CLOSE_GAME"
+    START_GAME = "!START"
 
     # this key is secret, plz don't read it
     _KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
@@ -65,6 +69,7 @@ class Client:
         self._lon = 0
         self._lat = 0
         self._markers = []
+        self._all_tokens = []
 
     def _sigint_handler(self, signum, stack_frame):
         try:
@@ -158,7 +163,7 @@ class Client:
                         if msg[0] == self.REQUEST_LOCATIONS:
                             with self._r_lock:
                                 self._markers = msg[1]
-                                #print("Tu wypisuje client markery: " + str(self._markers))
+
                         elif msg[0] == self.DISCONNECT_MESSAGE:
                             with self._r_lock:
                                 self._connected = False
@@ -166,8 +171,7 @@ class Client:
                                 self._my_socket.close()
                             print("Closed connection with server")  # TODO: display
                             print(msg[1])
-                        elif msg[0] == self.REQUEST_TOKENS:
-                            print(msg[1])  # TODO: display
+
                         elif msg[0] == self.INIT_MESSAGE:
                             if msg[1] == "Setup complete":
                                 update_location_thread = threading.Thread(target=self._update_location)
@@ -177,11 +181,15 @@ class Client:
                                 fetch_locations_thread.daemon = True
                                 fetch_locations_thread.start()
                             print("Registration complete")  # TODO: display
+
                         elif msg[0] == self.ERROR:
                             print(msg[1])  # TODO: display
                             if msg[1] == "Incorrect token":
                                 with self._r_lock:
                                     self._token = None
+
+                        elif msg[0] == self.ADMIN_SETUP:
+                            self._all_tokens = msg[1][1]
 
                     else:
                         with self._r_lock:

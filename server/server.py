@@ -16,6 +16,14 @@ class Admin:
         self.is_visible = False
 
 
+# TODO: DISCONNECT ONLY FOR CLIENTS PRESENT IN CLIENT_LOCATIONS -> done. Needs testing
+# TODO: Read INIT message from admin (token:username:flag:number_of_tokens) -> done. Needs testing
+# TODO: add 'host-' before admin username -> done. Needs testing
+
+# TODO: better Game Closing
+# TODO: implement game start over message. Or not?
+
+
 class Server:
     HEADER_SIZE = 64
     PORT = 5050
@@ -26,11 +34,11 @@ class Server:
     DISCONNECT = "!DISCONNECT"
     REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
     UPDATE_LOCATION = "!UPDATE_LOCATION"
-    REQUEST_TOKENS = "!REQUEST_TOKENS"
     ERROR = "!ERROR"
     ADMIN_SETUP = "!ADMIN"
     ADMIN_TOKEN = "/0000000/"
     CLOSE_GAME = "!CLOSE_GAME"
+    START_GAME = "!START"
 
     # this key is secret, plz don't read it
     _KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
@@ -66,7 +74,6 @@ class Server:
             print(f"\n[ERROR] Binding failed. Error code: {errmsg.errno}\n"
                   f"Message:  {errmsg.strerror}\n"
                   f"Server start failed. Try again\n")
-            # sys.exit()
 
         print("Socket binding complete")
         self._my_socket.listen()
@@ -94,7 +101,9 @@ class Server:
 
         self._sockets_list = [self._my_socket]
         self._admin.socket = None
-        self._admin.is_visible = None
+        self._admin.token = None
+        self._admin.is_visible = False
+        print("Game finished")
 
     #  handle connected client
     def _handle_message(self, client_socket):
@@ -115,12 +124,14 @@ class Server:
                 print(f"[{self._clients[client_socket][0]}:{self._clients[client_socket][1]}] {msg}")
 
                 if msg[0] == self.DISCONNECT:  # disconnect current client and remove his data
-                    if msg[1] in self._tokens:
+                    if msg[1] in self._tokens and (msg[1], client_socket) in self._client_locations.keys():
                         self._client_locations.pop((msg[1], client_socket))
                     print(f"Closing connection for {self._clients[client_socket][0]}:{self._clients[client_socket][1]}")
                     self._clients.pop(client_socket)
                     if client_socket == self._admin.socket:
                         self._admin.socket = None
+                        self._admin.token = None
+                        self._admin.is_visible = False
                     self._sockets_list.remove(client_socket)
                     client_socket.shutdown(socket.SHUT_RDWR)
                     client_socket.close()
@@ -137,7 +148,7 @@ class Server:
                     else:
                         locations = [value for key, value in self._client_locations.items() if
                                      (key[0] == msg[1] or (key[0] == self._admin.token and self._admin.is_visible)) and
-                                     key[1] != client_socket and value[1] != -1]
+                                     key[1] != client_socket]
                     self._send_message(client_socket, (self.REQUEST_LOCATIONS, locations))
                     return None
 
@@ -146,24 +157,22 @@ class Server:
                     if token in self._tokens:
                         self._client_locations.update({(token, client_socket): (name, 0, 0)})
                         self._send_message(client_socket, (self.INIT, "Setup complete"))
+                        return None
                     elif token == self._admin.token:
                         if self._admin.socket is None:
                             self._admin.socket = client_socket
                             name, visibility, team_count = name.split(":")
                             self._token_count = team_count
                             self._admin.is_visible = bool(visibility)
-                            self._client_locations.update({(token, client_socket): (name, 0, 0)})
-                            self._send_message(client_socket, (self.ADMIN_SETUP, "Setup complete"))
+                            self._client_locations.update({(token, client_socket): ('host-' + name, 0, 0)})
+                            self._send_message(client_socket, (self.ADMIN_SETUP,
+                                                               ("Setup complete",
+                                                                self.generate_token(token_count=team_count))))
+                            return None
                         else:
                             self._send_message(client_socket, (self.ERROR, "Admin has been already set"))
                     else:
                         self._send_message(client_socket, (self.ERROR, "Incorrect token"))
-                    return None
-
-                elif msg[0] == self.REQUEST_TOKENS and client_socket == self._admin.socket:  # send new tokens to admin
-                    tokens_count = msg[1]
-                    self.generate_token(tokens_count)
-                    self._send_message(client_socket, (self.REQUEST_TOKENS, self._tokens))
                     return None
 
                 elif msg[0] == self.CLOSE_GAME and client_socket == self._admin.socket:
@@ -182,9 +191,13 @@ class Server:
                 self._sockets_list.remove(client_socket)
                 if self._admin.socket == client_socket:
                     self._admin.socket = None
+                    self._admin.token = None
+                    self._admin.is_visible = False
+                key_to_remove = None
                 for key in self._client_locations.keys():
-                    if key[0] == client_socket:
-                        self._client_locations.pop(key)
+                    if key[1] == client_socket:
+                        break
+                self._client_locations.pop(key_to_remove)
                 client_socket.shutdown(socket.SHUT_RDWR)
                 client_socket.close()
 

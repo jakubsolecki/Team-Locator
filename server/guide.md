@@ -1,5 +1,7 @@
 # Client-server overview
 
+## !!! OUTDATED !!!
+
 ## General
 
 ### Message types and corresponding schemes 
@@ -12,7 +14,9 @@ Supported message types:
     - Should be first message send to the server. Registers client on the server.
     - Macro: INIT
     - Scheme: ("!INIT", "token:username")
-    - Admin scheme: ("!INIT", "admin_token:hostname:") <- after second ':' goes 'True' or nothing. This is used as flag
+    - Admin scheme: ("!INIT", "admin_token:hostname:Flag:team_count") 
+        Flag can be True or False; sets admin's visibility to all players.
+        team_count is a number of tokens tht will be generated (and number of teams in game)
       host's visibility to other players. 
     - Return message: ("!INIT", "Setup complete") or ("!ADMIN", "Setup complete") or 
       ("!ERROR", "Admin has been already set") or ("!ERROR", "Incorrect token")
@@ -36,16 +40,10 @@ Supported message types:
     - Scheme: ("!UPDATE_LOCATION", (username, longitude, latitude))
     - Return message: None
     
-  * "!REQUEST_TOKENS" (For admin only)
-    - Send by admin with number of tokens that server will generate and send back.
-    - Macro: REQUEST_TOKENS
-    - Scheme: ("!REQUEST_TOKENS", number_of_tokens)
-    - Return message: List of generated tokens.
-    
-  * "!ADMIN"
+  * "!ADMIN_SETUP"
     - Send only as server's answer to successful admin registration.
     - Macro: ADMIN_SETUP
-    - Scheme: ("!ADMIN", "Setup complete")
+    - Scheme: ("!ADMIN", ("Setup complete", [token1, token2, token3, etc.]))
     - Return message: None
     
   * "!ERROR"
