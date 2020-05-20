@@ -34,12 +34,6 @@ class TeamMapView(MapView):
         # ("Czeslaw Niemen", longitude + 0.01, latitude - 0.001),
         # ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
     ]
-    markers = []
-    #    ("ElKozako", longitude + 0.001, latitude - 0.001),
-    #    ("Shrek", longitude + 0.0001, latitude + 0.001),
-    #    ("Czeslaw Niemen", longitude + 0.01, latitude - 0.001),
-    #    ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
-    #]
 
     def __init__(self, **kwargs):
         Clock.schedule_interval(self.get_markers_in_fov, 2)

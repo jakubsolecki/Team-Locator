@@ -16,7 +16,7 @@ class GpsModule():
 
     def __init__(self):
         if GpsModule.__instance is not None:  # singleton implementation
-            raise Exception("Client class must be a singleton!")
+            raise Exception("GpsModule class must be a singleton!")
         else:
             GpsModule.__instance = self
 
@@ -58,6 +58,7 @@ class GpsModule():
             blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
             blinker.lat = my_lat
             blinker.lon = my_lon
+
         #blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
         #blinker.lat = my_lat
         #blinker.lon = my_lon

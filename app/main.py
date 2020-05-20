@@ -14,11 +14,10 @@ import atexit
 
 
 class MainApp(App):
-    
+
 
     def on_start(self):
         GpsModule.get_instance().run()
-        GpsModule().run()
         pass
 
 
