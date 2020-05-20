@@ -22,7 +22,8 @@ General TODO:
 class Client:
     HEADER_SIZE = 64
     PORT = 5050
-    SERVER = socket.gethostbyname(socket.gethostname())  # TODO: provide from user input (server IPv4 so far)
+    # SERVER = socket.gethostbyname(socket.gethostname())
+    SERVER = '142.93.227.45'
     ADDRESS = (SERVER, PORT)
     FORMAT = 'utf-8'
     INIT_MESSAGE = "!INIT"
@@ -33,9 +34,10 @@ class Client:
     ADMIN_TOKEN = "/0000000/"
     ADMIN_SETUP = "!ADMIN"
     ERROR = "!ERROR"
+    CLOSE_GAME = "!CLOSE_GAME"
 
     # this key is secret, plz don't read it
-    KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
+    _KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
 
     __instance = None
 
@@ -77,7 +79,7 @@ class Client:
             print(f"\n[ERROR] An error occurred while handling SIGINT\n"
                   f" Error code: {errmsg.errno}\n"
                   f" Message: {errmsg.strerror}\n")
-        sys.exit()  # TODO change in app
+        sys.exit()
 
     # connect to server using it's ip <- will be provided form user input
     def connect(self, server_ip=SERVER):
@@ -85,9 +87,10 @@ class Client:
             try:
                 with self._r_lock:
                     self._my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self._my_socket.settimeout(20)
                     self._server_ip = server_ip
                     self._my_socket.connect((server_ip, self.PORT))
-                    self._my_socket.setblocking(False)
+                    # self._my_socket.setblocking(False)
                     self._sockets.append(self._my_socket)
                     self._connected = True
                 receive_messages_thread = threading.Thread(target=self._receive_message)
@@ -99,7 +102,7 @@ class Client:
                       f" Message: {errmsg.strerror}\n")
 
     def send_message(self, msg_type, msg):
-        if  msg_type == self.INIT_MESSAGE and self._connected: #TODO ---------------------------------------------------------------- CHANGES MADE HERE -----------------------------------
+        if msg_type == self.INIT_MESSAGE and self._connected: #TODO ---------------------------------------------------------------- CHANGES MADE HERE -----------------------------------
             self._token, self._name = msg.split(':', 1)
 
         msg = (msg_type, msg)
@@ -127,7 +130,7 @@ class Client:
     def _send_(self, msg):
         if self._connected:
             msg = pickle.dumps(msg)
-            digest = hmac.new(self.KEY, msg, hashlib.sha256).digest()
+            digest = hmac.new(self._KEY, msg, hashlib.sha256).digest()
             length = len(digest) + len(msg) + 2
             header_length = str(length).encode(self.FORMAT)
             header_length += b' ' * (self.HEADER_SIZE - len(header_length))
@@ -152,7 +155,7 @@ class Client:
                         header_length = int(header_length)
                         header = notified_socket.recv(header_length)
                         digest, pickled_msg = header.split(b'  ')
-                        check_digest = hmac.new(self.KEY, pickled_msg, hashlib.sha256).digest()
+                        check_digest = hmac.new(self._KEY, pickled_msg, hashlib.sha256).digest()
                         if hmac.compare_digest(check_digest, digest):
                             msg = pickle.loads(pickled_msg)
                         else:
@@ -163,14 +166,13 @@ class Client:
                         if msg[0] == self.REQUEST_LOCATIONS:
                             with self._r_lock: #TODO ---------------------------------------------------------------- CHANGES MADE HERE -----------------------------------
                                 self._markers = msg[1]
-                                print(msg[1])  # TODO: update list of positions
                                 #print("Tu wypisuje client markery: " + str(self._markers))
                         elif msg[0] == self.DISCONNECT_MESSAGE:
                             with self._r_lock:
                                 self._connected = False
                                 self._my_socket.shutdown(socket.SHUT_RDWR)
                                 self._my_socket.close()
-                                print("Closed connection with server")  # TODO: display
+                            print("Closed connection with server")  # TODO: display
                             print(msg[1])
                         elif msg[0] == self.REQUEST_TOKENS:
                             print(msg[1])  # TODO: display

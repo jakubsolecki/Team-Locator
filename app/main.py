@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
 '''
 TODO APP LIST:
-    EXIT button for host isnt working
+    EXIT button for host isn't working
         CAN SERVER BE HOSTED ON SAME PASSWORD? MUST BE CHECKED
     how others see host? Right now I guess the same color as others
     deal with included libraries trash

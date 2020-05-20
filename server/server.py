@@ -9,11 +9,6 @@ from random import choice
 from string import ascii_uppercase
 
 
-'''
-TODO:
-'''
-
-
 class Admin:
     def __init__(self):
         self.token = None
@@ -24,7 +19,8 @@ class Admin:
 class Server:
     HEADER_SIZE = 64
     PORT = 5050
-    SERVER = socket.gethostbyname(socket.gethostname())  # + ".local" so that it's no longer localhost-only
+    # SERVER = socket.gethostbyname(socket.gethostname())  # + ".local" so that it's no longer localhost-only
+    SERVER = ''
     ADDRESS = (SERVER, PORT)
     FORMAT = 'utf-8'
     INIT = "!INIT"
@@ -35,9 +31,10 @@ class Server:
     ERROR = "!ERROR"
     ADMIN_SETUP = "!ADMIN"
     ADMIN_TOKEN = "/0000000/"
+    CLOSE_GAME = "!CLOSE_GAME"
 
     # this key is secret, plz don't read it
-    KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
+    _KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
 
     def __init__(self):
         print("[STARTING] server is starting...")
@@ -107,7 +104,7 @@ class Server:
                 header_length = int(header_length)
                 header = client_socket.recv(header_length)
                 digest, pickled_msg = header.split(b'  ')
-                check_digest = hmac.new(self.KEY, pickled_msg, hashlib.sha256).digest()
+                check_digest = hmac.new(self._KEY, pickled_msg, hashlib.sha256).digest()
                 if hmac.compare_digest(check_digest, digest):
                     msg = pickle.loads(pickled_msg)
                 else:
@@ -117,7 +114,8 @@ class Server:
                 print(f"[{self._clients[client_socket][0]}:{self._clients[client_socket][1]}] {msg}")
 
                 if msg[0] == self.DISCONNECT:  # disconnect current client and remove his data
-                    self._client_locations.pop((msg[1], client_socket))
+                    if msg[1] in self._tokens:
+                        self._client_locations.pop((msg[1], client_socket))
                     print(f"Closing connection for {self._clients[client_socket][0]}:{self._clients[client_socket][1]}")
                     self._clients.pop(client_socket)
                     if client_socket == self._admin.socket:
@@ -167,6 +165,10 @@ class Server:
                     self._send_message(client_socket, (self.REQUEST_TOKENS, self._tokens))
                     return None
 
+                elif msg[0] == self.CLOSE_GAME and client_socket == self._admin.socket:
+                    self.close_game()
+                    return None
+
                 elif msg[0] == self.ERROR:
                     print(msg[1])
 
@@ -190,7 +192,7 @@ class Server:
     # send message to client
     def _send_message(self, connection, msg):
         msg = pickle.dumps(msg)
-        digest = hmac.new(self.KEY, msg, hashlib.sha256).digest()
+        digest = hmac.new(self._KEY, msg, hashlib.sha256).digest()
         length = len(digest) + len(msg) + 2
         header_length = str(length).encode(self.FORMAT)
         header_length += b' ' * (self.HEADER_SIZE - len(header_length))
