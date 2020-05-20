@@ -54,20 +54,16 @@ class GpsModule():
 
         client = Client.get_instance()
 
-<<<<<<< HEAD
         if self.update_blinker is True:
             blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
             blinker.lat = my_lat
             blinker.lon = my_lon
-=======
         #blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
         #blinker.lat = my_lat
         #blinker.lon = my_lon
->>>>>>> 62b8dd759598175c0a11841986b5b7273278f737
 
         client._lon = my_lon  # HUGELY UNRECOMMENDED
         client._lat = my_lat
-
 
         # centers map:
         if not self.is_centered_map:
