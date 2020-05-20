@@ -47,12 +47,11 @@ class TokenWindow(Screen):
         message = self.code.text + ":" + self.nick.text
         print("Message sent to server: " + message)
 
-        client = Client.get_instance()
-        client.send_message(client.INIT_MESSAGE, message)
+        self.client.send_message(self.client.INIT_MESSAGE, message)
 
-        sleep(1)  # NEEED TO SET LOCKS HERE, BUT RIGHT NOW SLEEP WORKS XDDD
+        sleep(1)
 
-        if client._token is None:
+        if self.client._token is None:
             return
 
         # Takes second letter as number from 0 to 9: || #1ABCD means color 1 ||
@@ -66,7 +65,7 @@ class TokenWindow(Screen):
         map.add_widget(blinker)
         blinker.blink()
 
-        GpsModule.get_instance().start_updating()
+        App.get_running_app().gps_mod.start_updating(blinker)
 
         screen = App.get_running_app().root
         screen.current = "viewer"
@@ -115,7 +114,7 @@ class HostWindow(Screen):
         blinker.blink()
         map.add_host_buttons()
 
-        GpsModule.get_instance().start_updating()
+        App.get_running_app().gps_mod.start_updating(blinker)
 
         screen = App.get_running_app().root
         screen.current = "viewer"

@@ -13,7 +13,6 @@ import gui
 
 
 class TeamMapView(MapView):
-    refresh_timer = None
     markerArr = []
 
     client = Client.get_instance()
@@ -41,25 +40,18 @@ class TeamMapView(MapView):
 
     def add_host_buttons(self):
         window = App.get_running_app().root.ids.mw
-        btn = app.gui.BtnPopup("Right now new button spawns on zoom. \n"
-                               "Spawn single time after getting host via server\n"
-                               "And improve displaying label on popup to handle 10 teams")
+        btn = gui.BtnPopup("Right now new button spawns on zoom. \n"
+                           "Spawn single time after getting host via server\n"
+                           "And improve displaying label on popup to handle 10 teams")
         window.add_widget(btn)
 
-    def draw_markers(self):
-        try:
-            self.refresh_timer.cancel()
-        except:  # TODO: remove?
-            pass
-        self.refresh_timer = Clock.schedule_once(self.get_markers_in_fov, 0.1)
-
     def get_markers_in_fov(self, *args):
-        self.markers = self.client._markers # TODO: REMOVE MOCK DATA AND UNCOMMENT IT ON REAL TESTING
+        markers = self.client._markers # TODO: REMOVE MOCK DATA AND UNCOMMENT IT ON REAL TESTING
         for mark in self.markerArr:
             self.remove_widget(mark)  # clear old widgets. Visible by user? Hope not. Efficient? HELL NAH
         self.markerArr.clear()
 
-        for marker in self.markers:
+        for marker in markers:
             self.add_mark(marker)
 
     def add_mark(self, marker):

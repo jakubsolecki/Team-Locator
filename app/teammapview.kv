@@ -4,17 +4,9 @@
 #:include teammarker.kv
 
 <TeamMapView>:
-
     zoom: 16
     lon: root.longitude
     lat: root.latitude
-    #on_zoom:
-        #self.zoom = 13 if self.zoom < 13 else self.zoom
-    on_lat:
-        self.draw_markers()
-    on_lon:
-        self.draw_markers()
-
 
 
 #REMOVED ZOOM LIMIT TO BE ABLE TO TEST GAME FROM DIFFERENT CITIES

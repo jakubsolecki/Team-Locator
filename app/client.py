@@ -20,8 +20,8 @@ General TODO:
 class Client:
     HEADER_SIZE = 64
     PORT = 5050
-    SERVER = socket.gethostbyname(socket.gethostname())
-    # SERVER = '142.93.227.45'
+    # SERVER = socket.gethostbyname(socket.gethostname())
+    SERVER = '142.93.227.45'
     ADDRESS = (SERVER, PORT)
     FORMAT = 'utf-8'
     INIT_MESSAGE = "!INIT"
