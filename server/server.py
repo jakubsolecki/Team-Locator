@@ -19,7 +19,6 @@ class Admin:
 class Server:
     HEADER_SIZE = 64
     PORT = 5050
-    # SERVER = socket.gethostbyname(socket.gethostname())  # + ".local" so that it's no longer localhost-only
     SERVER = ''
     ADDRESS = (SERVER, PORT)
     FORMAT = 'utf-8'
@@ -116,7 +115,7 @@ class Server:
                 print(f"[{self._clients[client_socket][0]}:{self._clients[client_socket][1]}] {msg}")
 
                 if msg[0] == self.DISCONNECT:  # disconnect current client and remove his data
-                    if msg[1] in self._tokens and (msg[1], client_socket) in self._client_locations.keys():
+                    if msg[1] in self._tokens:
                         self._client_locations.pop((msg[1], client_socket))
                     print(f"Closing connection for {self._clients[client_socket][0]}:{self._clients[client_socket][1]}")
                     self._clients.pop(client_socket)
@@ -183,6 +182,9 @@ class Server:
                 self._sockets_list.remove(client_socket)
                 if self._admin.socket == client_socket:
                     self._admin.socket = None
+                for key in self._client_locations.keys():
+                    if key[0] == client_socket:
+                        self._client_locations.pop(key)
                 client_socket.shutdown(socket.SHUT_RDWR)
                 client_socket.close()
 
