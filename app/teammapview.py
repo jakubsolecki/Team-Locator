@@ -21,8 +21,8 @@ class TeamMapView(MapView):
     # Mock markers
     # TODO: all markers to single 2D-array, markers[0] is local position and move them to another class?,
     # add unique ID for each marker?
-    markers = [[longitude, latitude], [longitude + 0.0001, latitude + 0.001], [longitude + 0.01, latitude - 0.001],
-               [longitude + 0.001, latitude - 0.01]]
+    markers = [("Me", longitude, latitude), ("Jan", longitude + 0.0001, latitude + 0.001),
+               ("Paweł", longitude + 0.01, latitude - 0.001), ("Darek", longitude + 0.001, latitude - 0.01)]
 
     def draw_markers(self):
         try:
@@ -34,20 +34,20 @@ class TeamMapView(MapView):
     def get_markers_in_fov(self, *args):
         d_lat, d_lon, u_lat, u_lon = self.get_bbox()
         for marker in self.markers:
-            if d_lat < marker[1] < u_lat and d_lon < marker[0] < u_lon:
+            if d_lat < marker[2] < u_lat and d_lon < marker[1] < u_lon:
                 self.add_mark(marker)
 
     def add_mark(self, marker):
-        lat, lon = marker[1], marker[0]
+        lat, lon = marker[2], marker[1]
         popup = MapMarkerPopup(lat=lat, lon=lon)
         self.add_widget(popup)
         pass
 
     def show_full_team(self):  # centers map to middle of the team, not player
-        min_lon = min(i[0] for i in self.markers)
-        min_lat = min(i[1] for i in self.markers)
-        max_lon = max(i[0] for i in self.markers)
-        max_lat = max(i[1] for i in self.markers)
+        min_lon = min(i[1] for i in self.markers)
+        min_lat = min(i[2] for i in self.markers)
+        max_lon = max(i[1] for i in self.markers)
+        max_lat = max(i[2] for i in self.markers)
 
         self.lon = (min_lon + max_lon)/2
         self.lat = (min_lat + max_lat)/2

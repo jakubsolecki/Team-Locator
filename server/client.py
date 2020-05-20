@@ -8,19 +8,13 @@ import signal
 import hmac
 import hashlib
 
-'''
-General TODO:
-    - improve handling messages
-    - improve sending messages
-    - clean code
-'''
-
 
 # ============== Client is a singleton therefore it must always be created/accessed using get_instance() ==============
 class Client:
     HEADER_SIZE = 64
     PORT = 5050
-    SERVER = socket.gethostbyname(socket.gethostname())  # TODO: provide from user input (server IPv4 so far)
+    # SERVER = socket.gethostbyname(socket.gethostname())  # TODO: provide from user input (server IPv4 so far)
+    SERVER = '172.17.0.1'
     ADDRESS = (SERVER, PORT)
     FORMAT = 'utf-8'
     INIT_MESSAGE = "!INIT"
@@ -60,14 +54,15 @@ class Client:
         self._initialised_flag = False
         self._sockets = []
         self._r_lock = threading.RLock()
-        self.connect()
+        # self.connect()
 
     def _sigint_handler(self, signum, stack_frame):
         try:
             if self._connected:
                 self.send_message(self.DISCONNECT_MESSAGE, self._token)
-            self._my_socket.shutdown(socket.SHUT_RDWR)
-            self._my_socket.close()
+            if self._my_socket:
+                self._my_socket.shutdown(socket.SHUT_RDWR)
+                self._my_socket.close()
         except OSError as errmsg:
             print(f"\n[ERROR] An error occurred while handling SIGINT\n"
                   f" Error code: {errmsg.errno}\n"
@@ -174,6 +169,7 @@ class Client:
                                 fetch_locations_thread.daemon = True
                                 fetch_locations_thread.start()
                             print("Registration complete")  # TODO: display
+                        # elif msg[]
                         elif msg[0] == self.ERROR:
                             print(msg[1])  # TODO: display
 
@@ -197,18 +193,18 @@ if __name__ == "__main__":
     x = Client().get_instance()
     x.connect()
     input()
-    x.send_message(x.INIT_MESSAGE, "#ABCD:Jakub Solecki")  # token:username
+    x.send_message(x.INIT_MESSAGE, "/0000000/:Jakub Solecki")  # token:username
     #  for admin INIT message goes like "token:hostname:") after second : goes true for True and nothing for False
     input()
     x.send_message("TEST", "Hello world!")
     input()
-    x.send_message(x.REQUEST_LOCATIONS, "#ABCD")
+    x.send_message(x.REQUEST_LOCATIONS, "/0000000/")
     input()
     data = ("Jakub Solecki", 50.458673, 51.906735)
-    x.send_message(x.UPDATE_LOCATION, ("#ABCD", data))
+    x.send_message(x.UPDATE_LOCATION, ("/0000000/", data))
     input()
-    x.send_message(x.REQUEST_LOCATIONS, "#ABCD")
+    x.send_message(x.REQUEST_LOCATIONS, "/0000000/")
     input()
-    x.send_message(x.DISCONNECT_MESSAGE, "#ABCD")
+    x.send_message(x.DISCONNECT_MESSAGE, "/0000000/")
     input("Press enter to exit")
     sys.exit()

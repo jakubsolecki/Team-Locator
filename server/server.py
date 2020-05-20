@@ -8,11 +8,7 @@ import hashlib
 from random import choice
 from string import ascii_uppercase
 
-
-'''
-TODO:
-'''
-
+# TODO: admin's message for ending game
 
 class Admin:
     def __init__(self):
@@ -24,7 +20,9 @@ class Admin:
 class Server:
     HEADER_SIZE = 64
     PORT = 5050
-    SERVER = socket.gethostbyname(socket.gethostname())  # + ".local" so that it's no longer localhost-only
+    # SERVER = socket.gethostbyname(socket.gethostname())  # + ".local" so that it's no longer localhost-only
+    SERVER = '172.17.0.1'  # + ".local" so that it's no longer localhost-only
+    print(SERVER)
     ADDRESS = (SERVER, PORT)
     FORMAT = 'utf-8'
     INIT = "!INIT"
@@ -116,7 +114,8 @@ class Server:
                 print(f"[{self._clients[client_socket][0]}:{self._clients[client_socket][1]}] {msg}")
 
                 if msg[0] == self.DISCONNECT:  # disconnect current client and remove his data
-                    self._client_locations.pop((msg[1], client_socket))
+                    if msg[1]:
+                        self._client_locations.pop((msg[1], client_socket))
                     print(f"Closing connection for {self._clients[client_socket][0]}:{self._clients[client_socket][1]}")
                     self._clients.pop(client_socket)
                     if client_socket == self._admin.socket:
