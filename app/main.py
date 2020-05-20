@@ -19,7 +19,7 @@ class MainApp(App):
     code = ''
 
     def on_start(self):
-        GpsModule().run()
+        #GpsModule().run()
         pass
 
 

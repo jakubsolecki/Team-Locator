@@ -29,12 +29,12 @@ class TeamMapView(MapView):
     latitude = location.latitude
 
     # Mock markers
-    markers = [
-        ("ElKozako", longitude + 0.001, latitude - 0.001),
-        ("Shrek", longitude + 0.0001, latitude + 0.001),
-        ("Czeslaw Niemen", longitude + 0.01, latitude - 0.001),
-        ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
-    ]
+    markers = []
+    #    ("ElKozako", longitude + 0.001, latitude - 0.001),
+    #    ("Shrek", longitude + 0.0001, latitude + 0.001),
+    #    ("Czeslaw Niemen", longitude + 0.01, latitude - 0.001),
+    #    ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
+    #]
 
     def __init__(self, **kwargs):
         Clock.schedule_interval(self.get_markers_in_fov, 2)
@@ -55,7 +55,7 @@ class TeamMapView(MapView):
         self.refresh_timer = Clock.schedule_once(self.get_markers_in_fov, 0.1)
 
     def get_markers_in_fov(self, *args):
-        # self.markers = self.client._markers # TODO: REMOVE MOCK DATA AND UNCOMMENT IT ON REAL TESTING
+        self.markers = self.client._markers # TODO: REMOVE MOCK DATA AND UNCOMMENT IT ON REAL TESTING
         for mark in self.markerArr:
             self.remove_widget(mark)  # clear old widgets. Visible by user? Hope not. Efficient? HELL NAH
         self.markerArr.clear()
