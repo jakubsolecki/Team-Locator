@@ -32,7 +32,7 @@ class TeamMapView(MapView):
     markers = [
         ("ElKozako", longitude + 0.001, latitude - 0.001),
         ("Shrek", longitude + 0.0001, latitude + 0.001),
-        ("Zbigi Kaleta", longitude + 0.01, latitude - 0.001),
+        ("Czeslaw Niemen", longitude + 0.01, latitude - 0.001),
         ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
     ]
 
