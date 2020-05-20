@@ -1,7 +1,8 @@
 from kivy.app import App
 from kivy.utils import platform
 
-from app.client import Client
+
+from client import Client
 
 class GpsModule():
     def run(self):
@@ -36,9 +37,9 @@ class GpsModule():
 
         client = Client.get_instance()
 
-        blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
-        blinker.lat = my_lat
-        blinker.lon = my_lon
+        #blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
+        #blinker.lat = my_lat
+        #blinker.lon = my_lon
 
         client._lon = my_lon  # HUGELY UNRECOMMENDED
         client._lat = my_lat

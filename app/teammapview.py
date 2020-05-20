@@ -9,8 +9,8 @@ from kivy.app import App
 
 from teammarker import TeamMarker
 
-from app.client import Client
-import app.gui
+from client import Client
+import gui
 
 
 class TeamMapView(MapView):

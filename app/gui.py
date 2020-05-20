@@ -6,10 +6,10 @@ from kivy.uix.treeview import TreeViewLabel
 from kivy.uix.popup import Popup
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
-from app.client import Client
-from app.colordict import color_dictionary
+from client import Client
+from colordict import color_dictionary
 from kivy.utils import get_color_from_hex
-from app.gpsblinker import GpsBlinker
+from gpsblinker import GpsBlinker
 import atexit
 from gpsmodule import GpsModule
 

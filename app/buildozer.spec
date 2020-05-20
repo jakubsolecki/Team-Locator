@@ -4,10 +4,10 @@
 title = TeamLocator
 
 # (str) Package name
-package.name = myapp
+package.name = teamlocator
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.test
+package.domain = org.teamlocator
 
 # (str) Source code where the main.py live
 source.dir = .
