@@ -7,6 +7,7 @@ import hmac
 import hashlib
 from random import choice
 from string import ascii_uppercase
+import distutils.util
 
 
 class Admin:
@@ -16,13 +17,10 @@ class Admin:
         self.is_visible = False
 
 
-# TODO: DISCONNECT ONLY FOR CLIENTS PRESENT IN CLIENT_LOCATIONS -> done. Needs testing
-# TODO: Read INIT message from admin (token:username:flag:number_of_tokens) -> done. Needs testing
-# TODO: add 'host-' before admin username -> done. Needs testing
+# TODO: Read INIT message from admin (token:username:flag:number_of_tokens) -> crashes but it looks like it's an app bug
+# TODO: add 'host-' before admin username -> done. Needs testing (can't be tested due to previous bug)
 
-# TODO: better Game Closing
-# TODO: implement game start over message. Or not?
-
+# TODO: better messaging when host closes game
 
 class Server:
     HEADER_SIZE = 64
@@ -78,8 +76,8 @@ class Server:
         print("Socket binding complete")
         self._my_socket.listen()
         print(f"[LISTENING] Server is listening on {self.SERVER}")
-        self._admin.token = self.ADMIN_TOKEN
-        print(f"[ADMINISTRATOR SETUP] Use this token to gain admin access: {self._admin.token}")
+        # self._admin.token = self.ADMIN_TOKEN
+        print(f"[ADMINISTRATOR SETUP] Use this token to gain admin access: {self.ADMIN_TOKEN}")
         self._listen_to_sockets()
 
     # cleaning after the game and getting ready for a new one
@@ -159,12 +157,12 @@ class Server:
                         self._send_message(client_socket, (self.INIT, "Setup complete"))
                         return None
                     elif token == self._admin.token:
-                        if self._admin.socket is None:
+                        if self._admin.socket is None and ":" in name and any(char.isdigit() for char in name):
                             self._admin.socket = client_socket
                             name, visibility, team_count = name.split(":")
-                            self._token_count = team_count
-                            self._admin.is_visible = bool(visibility)
-                            self._client_locations.update({(token, client_socket): ('host-' + name, 0, 0)})
+                            self._token_count = int(team_count)
+                            self._admin.is_visible = bool(distutils.util.strtobool(visibility))
+                            self._client_locations.update({(token, client_socket): ('host - ' + name, 0, 0)})
                             self._send_message(client_socket, (self.ADMIN_SETUP,
                                                                ("Setup complete",
                                                                 self.generate_token(token_count=team_count))))
