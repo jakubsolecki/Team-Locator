@@ -1,27 +1,13 @@
 from kivy.app import App
 from kivy.utils import platform
-
 from client import Client
 
+
 class GpsModule():
-    __instance = None
-
-    @staticmethod
-    def get_instance():
-        if GpsModule.__instance is None:
-            GpsModule()
-
-        return GpsModule.__instance
-
-    def __init__(self):
-        if GpsModule.__instance is not None:  # singleton implementation
-            raise Exception("GpsModule class must be a singleton!")
-        else:
-            GpsModule.__instance = self
-
+    blinker = None
+    has_centered_map = False
 
     def run(self):
-        has_centered_map = False
 
         # persmissions on Android:
         if platform == 'android':
@@ -33,7 +19,8 @@ class GpsModule():
             request_permissions([Permission.ACCESS_COARSE_LOCATION,
                                  Permission.ACCESS_FINE_LOCATION], callback)
 
-    def start_updating(self):
+    def start_updating(self, blinker):
+        self.blinker = blinker
         if platform == 'android':
             from plyer import gps
             gps.configure(on_location=self.update_gps_position, on_status=self.on_auth_status)
@@ -45,9 +32,8 @@ class GpsModule():
 
         print("GPS POSITTION", my_lat, my_lon)
 
-        blinker = App.get_running_app().root.ids.mw.ids.map.ids.blinker
-        blinker.lat = my_lat
-        blinker.lon = my_lon
+        self.blinker.lat = my_lat
+        self.blinker.lon = my_lon
 
         client = Client.get_instance()
         client._lon = my_lon  # HUGELY UNRECOMMENDED

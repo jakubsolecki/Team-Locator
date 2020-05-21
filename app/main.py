@@ -14,10 +14,10 @@ import atexit
 
 
 class MainApp(App):
-
+    gps_mod = GpsModule()
 
     def on_start(self):
-        GpsModule.get_instance().run()
+        self.gps_mod.run()
         pass
 
 
@@ -29,6 +29,7 @@ TODO APP LIST:
     EXIT button for host isn't working
         CAN SERVER BE HOSTED ON SAME PASSWORD? MUST BE CHECKED
     how others see host? Right now I guess the same color as others
+    show full team doesnt work if solo on server
     deal with included libraries trash
     clean cache 
     do something when server is down???
