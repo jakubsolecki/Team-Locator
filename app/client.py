@@ -28,7 +28,7 @@ class Client:
     DISCONNECT_MESSAGE = "!DISCONNECT"
     REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
     UPDATE_LOCATION = "!UPDATE_LOCATION"
-    ADMIN_TOKEN = "/0000000/"
+    ADMIN_TOKEN = "/00/"
     ADMIN_SETUP = "!ADMIN"
     ERROR = "!ERROR"
     CLOSE_GAME = "!CLOSE_GAME"
@@ -186,7 +186,7 @@ class Client:
 
                         elif msg[0] == self.ERROR:
                             print(msg[1])  # TODO: display
-                            if msg[1] == "Incorrect token" or "Admin has been already set":
+                            if msg[1] == "Incorrect token" or 'Admin has been already set':
                                 with self._r_lock:
                                     self._token = None
 
