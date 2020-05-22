@@ -173,6 +173,7 @@ class Client:
                                 self._connected = False
                                 self._my_socket.shutdown(socket.SHUT_RDWR)
                                 self._my_socket.close()
+                                self._token = None
                             print("Closed connection with server")  # TODO: display
                             print(msg[1])
 
@@ -201,6 +202,7 @@ class Client:
                             self._my_socket.shutdown(socket.SHUT_RDWR)
                             self._my_socket.close()
                             self._my_socket = None
+                            self._token = None
                         return None
 
                 except OSError as errmsg:
