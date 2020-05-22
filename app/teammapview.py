@@ -60,10 +60,11 @@ class TeamMapView(MapView):
 
     def get_markers_in_fov(self, *args):
         if not self.client._token and self.start_checking:  # Returns you to menu if server restarted
-            self.event.cancel()
+            #self.event.cancel()
             screen = App.get_running_app().root
             screen.current = "menu"
             self.start_checking = False
+            print(self.client._token, self.client._connected, self.client._sockets)
             return
 
         # markers = self.markers
@@ -78,10 +79,6 @@ class TeamMapView(MapView):
 
     def add_mark(self, marker):
         nick, lon, lat = marker
-        print("dzialam")
-        print(nick)
-        print(lon)
-        print(lat)
         if not self.host_buttons:
             if 'host-' in nick:
                 color_num = 0

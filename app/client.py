@@ -15,10 +15,6 @@ General TODO:
     - clean code
 '''
 
-# TODO: set self._token after confirmation from server -> returns ERROR message that sets token to None again
-
-# TODO: Store all tokens if admin -> done. Needs testing
-
 
 # ============== Client is a singleton therefore it must always be created/accessed using get_instance() ==============
 class Client:
@@ -63,7 +59,6 @@ class Client:
         self._token = None
         self._name = None
         self._connected = False
-        self._initialised_flag = False
         self._sockets = []
         self._r_lock = threading.RLock()
         self._lon = 0
@@ -146,7 +141,7 @@ class Client:
     # listen to messages from the server
     def _receive_message(self):
         while self._connected:
-            read_sockets, _, exception_sockets = select.select(self._sockets, [], self._sockets)
+            read_sockets, _, exception_sockets = select.select([self._my_socket], [], [self._my_socket])
             for notified_socket in read_sockets:
                 try:
                     header_length = notified_socket.recv(self.HEADER_SIZE).decode(self.FORMAT)
@@ -191,7 +186,7 @@ class Client:
 
                         elif msg[0] == self.ERROR:
                             print(msg[1])  # TODO: display
-                            if msg[1] == "Incorrect token":
+                            if msg[1] == "Incorrect token" or "Admin has been already set":
                                 with self._r_lock:
                                     self._token = None
 
