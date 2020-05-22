@@ -1,5 +1,6 @@
 #:include teammapview.kv
 
+
 <WindowManager>:
     TokenWindow:
         id:tw
@@ -63,11 +64,6 @@
             on_release: map.show_full_team()
             size: root.width, root.height * 0.1
             size_hint: None, None
-        #Button:
-            #text: "Leave"
-            #on_release: app.root.current = "menu"          # I PO KLOPOCIE XD
-            #size: root.width, root.height * 0.1
-            #size_hint: None, None
 
 
 <TokenWindow>:
@@ -77,26 +73,68 @@
 
     GridLayout:
         cols: 1
+        padding:10
+        spacing:10
+        background_color: 0.5,0.5,0.5,1
 
-        TextInput:
-            id: nick
-            multiline: False
+        Label:
+            text:"TEAM-LOCATOR"
+            bold:True
+            color:[0.5,1,0.5,1]
+            font_size:35
 
-        TextInput:
-            id: code
-            multiline: False
-
+        Label:
+            text:"Nickname:"
+            size_hint_y:None
+            height:50
         GridLayout:
-            cols: 2
-            Button:
-                text: "Connect Game"
-                #on_release: app.root.current = "viewer"
-                on_release: app.root.ids.tw.player_connect()
-            Button:
-                text: "Host Game"
-                #on_release: app.root.current = "host"
-                on_release: app.root.ids.hw.create_nodes()
-                on_release: app.root.ids.tw.host_connect()
+            cols: 3
+            size_hint_y:None
+            height:50
+            Widget:
+                size_hint_x:None
+                width:50
+            TextInput:
+                padding:16
+                id: nick
+                multiline: False
+                hint_text:'Nickname...'
+            Widget:
+                size_hint_x:None
+                width:50
+        Widget:
+            height:10
+            size_hint_y:None
+        Label:
+            text:"Team / Host code:"
+            size_hint_y:None
+            height:50
+        GridLayout:
+            cols: 3
+            size_hint_y:None
+            height:50
+            Widget:
+                size_hint_x:None
+                width:75
+            TextInput:
+                padding:16
+                id: code
+                multiline: False
+                hint_text:'Team / Host code...'
+            Widget:
+                size_hint_x:None
+                width:75
+
+        Widget:
+        Button:
+            text: "Connect Game"
+            #on_release: app.root.current = "viewer"
+            on_release: app.root.ids.tw.player_connect()
+        Button:
+            text: "Host Game"
+            #on_release: app.root.current = "host"
+            on_release: app.root.ids.hw.create_nodes()
+            on_release: app.root.ids.tw.host_connect()
 
 
 <BtnPopup>:
@@ -121,7 +159,7 @@
         top: self.height and root.y + root.height
         text: "STOP"
         on_release: app.root.current = "menu" #TODO: Add another popup so you don't accidentally close game by a single touch XD
-        on_release: root.terminate_game()
+        on_release: root.terminate_game_remove_host_privileges()
 
 
 <Pop>:

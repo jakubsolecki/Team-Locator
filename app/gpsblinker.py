@@ -13,6 +13,8 @@ class GpsBlinker(MapMarkerPopup):  # TODO: INHERIT FROM TeamMarker??
         self.color = get_color_from_hex(color_dictionary[color_number])
         self.nick = nick
 
+        self.animColor.clear()
+
         zipper = zip(self.color, [0, 0, 0, 0.4])
         for c_i, aC_i in zipper:
             self.animColor.append(c_i - aC_i)  # We need alpha < 1 for blink animation

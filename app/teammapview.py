@@ -14,6 +14,7 @@ import gui
 
 class TeamMapView(MapView):
     markerArr = []
+    host_buttons = None
 
     client = Client.get_instance()
 
@@ -40,15 +41,20 @@ class TeamMapView(MapView):
 
     def add_host_buttons(self):
         window = App.get_running_app().root.ids.mw
-        btn = gui.BtnPopup("Right now new button spawns on zoom. \n"
-                           "Spawn single time after getting host via server\n"
-                           "And improve displaying label on popup to handle 10 teams")
-        window.add_widget(btn)
+        self.host_buttons = btn = gui.BtnPopup("Right now new button spawns on zoom. \n"
+                                               "Spawn single time after getting host via server\n"
+                                               "And improve displaying label on popup to handle 10 teams")
+        window.add_widget(self.host_buttons)
+
+    def remove_host_buttons(self):
+        window = App.get_running_app().root.ids.mw
+        window.remove_widget(self.host_buttons)
+        self.host_buttons = None
 
     def get_markers_in_fov(self, *args):
-        markers = self.client._markers # TODO: REMOVE MOCK DATA AND UNCOMMENT IT ON REAL TESTING
+        markers = self.client._markers
         for mark in self.markerArr:
-            self.remove_widget(mark)  # clear old widgets. Visible by user? Hope not. Efficient? HELL NAH
+            self.remove_widget(mark)  # Visible by user? Nope. Efficient? HELL NAH; Easy to implement? HELL YEAH
         self.markerArr.clear()
 
         for marker in markers:
@@ -60,8 +66,6 @@ class TeamMapView(MapView):
         popup = TeamMarker(lat=lat, lon=lon, nick=nick, colorNum=colornum)
         self.add_widget(popup)
         self.markerArr.append(popup)
-
-        pass
 
     def show_full_team(self):  # centers map to middle of the team, not player
         min_lon = min(i[1] for i in self.markers)

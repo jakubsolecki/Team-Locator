@@ -13,6 +13,7 @@ from gpsblinker import GpsBlinker
 import atexit
 from gpsmodule import GpsModule
 
+from kivymd.theming import ThemeManager
 
 class WindowManager(ScreenManager):
     pass
@@ -32,9 +33,9 @@ class TokenWindow(Screen):
         self.client.send_message(self.client.DISCONNECT_MESSAGE, self.code.text)
 
     def host_connect(self):
-        #self.client.connect()
-        #if not self.client._connected:
-        #    return
+        self.client.connect()
+        if not self.client._connected:
+            return
         screen = App.get_running_app().root
         screen.current = "host"
         atexit.register(self.disconnect)
@@ -59,7 +60,7 @@ class TokenWindow(Screen):
             self.colornum = int(self.code.text[1])
 
         # GPS always starts in our faculty building <3
-        blinker = GpsBlinker(lon=19.9225399, lat=50.0680966, nick=self.nick.text, color_number=self.colornum)
+        blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=self.nick.text, color_number=self.colornum)
 
         map = App.get_running_app().root.ids.mw.ids.map
         map.add_widget(blinker)
@@ -77,6 +78,7 @@ class HostWindow(Screen):
     switch = ObjectProperty(None)  # Set to None because it is created before actual switch from .kv file
     slider = ObjectProperty(None)
     tv = ObjectProperty(None)
+    current_blinker = None
 
     hostVisible = False
     teamNumber = 0
@@ -89,7 +91,6 @@ class HostWindow(Screen):
             self.tv.remove_node(node)
 
         for i in range(int(self.slider.value)):
-            print("Spawning: " + str(i))
             self.teamNumber = i + 1
             name = 'Druzyna ' + str(i + 1)
             color = get_color_from_hex(color_dictionary[i + 1])
@@ -109,11 +110,11 @@ class HostWindow(Screen):
 
         sleep(1)
 
-        # if client._token is None: #TODO: REMOVE THIS COMMENT TO CHECK IF HOST ACUTALYY WORKS
+        # if client._token is None: #TODO: REMOVE THIS COMMENT TO CHECK IF HOST ACTUALLY WORKS
         #    return
 
         map = App.get_running_app().root.ids.mw.ids.map
-        blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=nickname, color_number=10)
+        self.current_blinker = blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=nickname, color_number=0)
         map.add_widget(blinker)
         blinker.blink()
         map.add_host_buttons()
@@ -149,6 +150,9 @@ class BtnPopup(Widget):
     def click(self):
         show_popup(text=self.text)
 
-    def terminate_game(self):
+    def terminate_game_remove_host_privileges(self):
         #TODO To be impemented after server upgrade
-        pass
+        map = App.get_running_app().root.ids.mw.ids.map
+        map.remove_host_buttons()
+        hw = App.get_running_app().root.ids.hw
+        map.remove_widget(hw.current_blinker)
