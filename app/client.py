@@ -1,8 +1,8 @@
 import socket
 import select
 import pickle
-import threading
 import sys
+import threading
 import time
 import signal
 import hmac
@@ -24,8 +24,8 @@ General TODO:
 class Client:
     HEADER_SIZE = 64
     PORT = 5050
-    SERVER = socket.gethostbyname(socket.gethostname())
-    # SERVER = '142.93.227.45'
+    # SERVER = socket.gethostbyname(socket.gethostname())
+    SERVER = '188.166.46.224'
     ADDRESS = (SERVER, PORT)
     FORMAT = 'utf-8'
     INIT_MESSAGE = "!INIT"
@@ -159,6 +159,7 @@ class Client:
                             print("[ERROR] Message denied due to digests incompatibility")
                             continue
 
+                        print(msg)  # TODO: remove me
                         # handling received messages according to their content
                         if msg[0] == self.REQUEST_LOCATIONS:
                             with self._r_lock:
@@ -173,7 +174,9 @@ class Client:
                             print(msg[1])
 
                         elif msg[0] == self.INIT_MESSAGE:
-                            if msg[1] == "Setup complete":
+                            if msg[1] == "Setup complete" or msg[1][0] == self.ADMIN_SETUP:
+                                if msg[1][0] == self.ADMIN_SETUP:
+                                    self._all_tokens = msg[1][1]
                                 update_location_thread = threading.Thread(target=self._update_location)
                                 update_location_thread.daemon = True
                                 update_location_thread.start()  # start updating current location
@@ -188,9 +191,6 @@ class Client:
                                 with self._r_lock:
                                     self._token = None
 
-                        elif msg[0] == self.ADMIN_SETUP:
-                            self._all_tokens = msg[1][1]
-
                     else:
                         with self._r_lock:
                             print("\n[ERROR] Received empty msg. Closing socket...")
@@ -204,50 +204,3 @@ class Client:
                     print(f"\n[ERROR] An error occurred while reading message\n"
                           f" Error code: {errmsg.errno}\n"
                           f" Message: {errmsg.strerror}\n")
-
-
-'''
-if __name__ == "__main__":
-    # hardcoded testing
-    x = Client().get_instance()
-    x.connect()
-    input()
-    x.send_message(x.INIT_MESSAGE, "#ABCD:Jakub Solecki")  # token:username
-    #  for admin INIT message goes like "token:hostname:") after second : goes true for True and nothing for False
-    input()
-    x.send_message("TEST", "Hello world!")
-    input()
-    x.send_message(x.REQUEST_LOCATIONS, "#ABCD")
-    input()
-    data = ("Jakub Solecki", 50.458673, 51.906735)
-    x.send_message(x.UPDATE_LOCATION, ("#ABCD", data))
-    input()
-    x.send_message(x.REQUEST_LOCATIONS, "#ABCD")
-    input()
-    x.send_message(x.DISCONNECT_MESSAGE, "#ABCD")
-    input("Press enter to exit")
-    sys.exit()
-
-
-
-# hardcoded testing
-x = Client().get_instance()
-x.connect()
-input()
-x.send_message(x.INIT_MESSAGE, "#ABCD:Jakub Solecki")  # token:username     # JOINING SERVER
-#x.send_message(x.INIT_MESSAGE, "#HARDCODEDTOKEN:Jakub Solecki")  # token:username     # HOSTING SERVER
-#input()
-#x.send_message("TEST", "Hello world!")
-#input()
-x.send_message(x.REQUEST_LOCATIONS, "#ABCD")
-input()
-data = ("Jakub Solecki", 50.458673, 51.906735)
-x.send_message(x.UPDATE_LOCATION, ("#ABCD", data))
-input()
-x.send_message(x.REQUEST_LOCATIONS, "#ABCD")
-input()
-x.send_message(x.DISCONNECT_MESSAGE, "#ABCD")
-input("Press enter to exit")
-sys.exit()
-
-'''
