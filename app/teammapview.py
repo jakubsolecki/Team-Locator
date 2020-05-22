@@ -15,6 +15,8 @@ import gui
 class TeamMapView(MapView):
     markerArr = []
     host_buttons = None
+    event = None
+    start_checking = False
 
     client = Client.get_instance()
 
@@ -36,7 +38,7 @@ class TeamMapView(MapView):
     # ]
 
     def __init__(self, **kwargs):
-        Clock.schedule_interval(self.get_markers_in_fov, 2)
+        self.event = Clock.schedule_interval(self.get_markers_in_fov, 2)
         super(TeamMapView, self).__init__(**kwargs)
 
     def add_host_buttons(self):
@@ -57,6 +59,13 @@ class TeamMapView(MapView):
         self.host_buttons = None
 
     def get_markers_in_fov(self, *args):
+        if not self.client._token and self.start_checking:  # Returns you to menu if server restarted
+            self.event.cancel()
+            screen = App.get_running_app().root
+            screen.current = "menu"
+            self.start_checking = False
+            return
+
         # markers = self.markers
         markers = self.client._markers
 
@@ -76,6 +85,7 @@ class TeamMapView(MapView):
                 color_num = App.get_running_app().root.ids.tw.colornum
         else:
             color_num, nick = nick.split(':', 1)
+            color_num = int(color_num)
 
         popup = TeamMarker(lat=lat, lon=lon, nick=nick, colorNum=color_num)
         self.add_widget(popup)

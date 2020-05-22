@@ -68,12 +68,14 @@ class TokenWindow(Screen):
 
         map = App.get_running_app().root.ids.mw.ids.map
         map.add_widget(blinker)
+        map.start_checking = True
         blinker.blink()
 
         App.get_running_app().gps_mod.start_updating(blinker)
 
         screen = App.get_running_app().root
         screen.current = "viewer"
+
 
         atexit.register(self.disconnect)
 
