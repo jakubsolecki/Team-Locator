@@ -31,6 +31,5 @@ TODO APP LIST:
     need to show info after host terminated game. Prolly in teammapview drawing points check if connection is closed  
     show team codes as host
     what if you dont get a host?
-    do I terminate game correctly?
 '''
 

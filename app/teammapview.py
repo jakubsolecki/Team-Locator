@@ -28,12 +28,12 @@ class TeamMapView(MapView):
     latitude = location.latitude
 
     # Mock markers
-    markers = [
-         ("ElKozako", longitude + 0.001, latitude - 0.001),
-         ("host-Shrek", longitude + 0.0001, latitude + 0.001),
-         ("Czeslaw Niemen", longitude + 0.01, latitude - 0.001),
-         ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
-    ]
+    # markers = [
+    #     ("ElKozako", longitude + 0.001, latitude - 0.001),
+    #     ("host-Shrek", longitude + 0.0001, latitude + 0.001),
+    #     ("Czeslaw Niemen", longitude + 0.01, latitude - 0.001),
+    #     ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
+    # ]
 
     def __init__(self, **kwargs):
         Clock.schedule_interval(self.get_markers_in_fov, 2)
@@ -41,9 +41,14 @@ class TeamMapView(MapView):
 
     def add_host_buttons(self):
         window = App.get_running_app().root.ids.mw
-        self.host_buttons = btn = gui.BtnPopup("Right now new button spawns on zoom. \n"
-                                               "Spawn single time after getting host via server\n"
-                                               "And improve displaying label on popup to handle 10 teams")
+        codes = ''
+        i = 1
+        print(self.client._all_tokens)
+        for token in  self.client._all_tokens:
+            codes = "\n" + codes + "Team " + str(i) + ":  " + token + "\n"
+            i = i + 1
+
+        self.host_buttons = btn = gui.BtnPopup(codes)
         window.add_widget(self.host_buttons)
 
     def remove_host_buttons(self):
@@ -54,6 +59,7 @@ class TeamMapView(MapView):
     def get_markers_in_fov(self, *args):
         # markers = self.markers
         markers = self.client._markers
+        
         for mark in self.markerArr:
             self.remove_widget(mark)  # Visible by user? Nope. Efficient? HELL NAH; Easy to implement? HELL YEAH
         self.markerArr.clear()

@@ -31,6 +31,7 @@ class TokenWindow(Screen):
 
     def disconnect(self):
         self.client.send_message(self.client.DISCONNECT_MESSAGE, self.code.text)
+        sleep(1)  # TODO: REMOVE SLEEP?
 
     def host_connect(self):
         self.client.connect()
@@ -59,8 +60,8 @@ class TokenWindow(Screen):
             return
 
         # Takes second letter as number from 0 to 9: || #1ABCD means color 1 ||
-        if len(self.code.text) >= 2 and self.code.text[1].isdigit():
-            self.colornum = int(self.code.text[1])
+        if len(self.code.text) >= 1 and self.code.text[0].isdigit():
+            self.colornum = int(self.code.text[0])
 
         # GPS always starts in our faculty building <3
         self.current_blinker = blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=self.nick.text, color_number=self.colornum)
@@ -81,7 +82,6 @@ class HostWindow(Screen):
     switch = ObjectProperty(None)  # Set to None because it is created before actual switch from .kv file
     slider = ObjectProperty(None)
     tv = ObjectProperty(None)
-
 
     hostVisible = False
     teamNumber = 0
@@ -105,7 +105,7 @@ class HostWindow(Screen):
         nickname = App.get_running_app().root.ids.tw.nick.text
         password = App.get_running_app().root.ids.tw.code.text
 
-        message = password + ":" + nickname + ":" + str(self.hostVisible) + ":" + str(self.teamNumber)
+        message = password + ":" + nickname + ":" + str(int(self.hostVisible)) + ":" + str(self.teamNumber)
         print("Message sent to server: " + message)
 
         client = Client.get_instance()
@@ -113,8 +113,8 @@ class HostWindow(Screen):
 
         sleep(1)
 
-        # if client._token is None: #TODO: REMOVE THIS COMMENT TO CHECK IF HOST ACTUALLY WORKS
-        #    return
+        if client._token is None:
+            return
 
         map = App.get_running_app().root.ids.mw.ids.map
         tw = App.get_running_app().root.ids.tw
@@ -156,7 +156,7 @@ class BtnPopup(Widget):
 
     def terminate_game_remove_host_privileges(self):
         client = Client.get_instance()
-        client.send_message(client.CLOSE_GAME, '')  # TODO: IS IT CORRECT?
+        client.send_message(client.CLOSE_GAME, None)  # TODO: IS IT CORRECT?
 
         map = App.get_running_app().root.ids.mw.ids.map
         map.remove_host_buttons()

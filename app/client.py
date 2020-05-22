@@ -1,8 +1,8 @@
 import socket
 import select
 import pickle
-import threading
 import sys
+import threading
 import time
 import signal
 import hmac
