@@ -16,11 +16,6 @@ class Admin:
         self.is_visible = False
 
 
-# TODO: Read INIT message from admin (token:username:flag:number_of_tokens) -> crashes but it looks like it's an app bug
-# TODO: add 'host-' before admin username -> done. Needs testing (can't be tested due to previous bug)
-
-# TODO: better messaging when host closes game
-
 class Server:
     HEADER_SIZE = 64
     PORT = 5050
