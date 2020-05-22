@@ -104,7 +104,10 @@ class Client:
 
     def send_message(self, msg_type, msg):
         if msg_type == self.INIT_MESSAGE and self._connected:
-            self._token, self._name = msg.split(':', 1)
+            if msg.count(':') == 3:
+                self._token, self._name, _, _ = msg.split(':', 3)
+            else:
+                self._token, self._name = msg.split(':')
 
         msg = (msg_type, msg)
         self._send_(msg)

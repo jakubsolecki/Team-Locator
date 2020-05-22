@@ -139,12 +139,11 @@ class Server:
                     return None
 
                 elif msg[0] == self.REQUEST_LOCATIONS:  # send client his teammates' locations
-                    if msg[1] == self._admin.token:
-                        locations = [value for key, value in self._client_locations.items() if key[1] != client_socket
-                                     and value[1] != -1]
+                    if msg[1] == self.ADMIN_TOKEN:
+                        locations = [value for key, value in self._client_locations.items() if key[1] != client_socket]
                     else:
                         locations = [value for key, value in self._client_locations.items() if
-                                     (key[0] == msg[1] or (key[0] == self._admin.token and self._admin.is_visible)) and
+                                     (key[0] == msg[1] or (key[0] == self.ADMIN_TOKEN and self._admin.is_visible)) and
                                      key[1] != client_socket]
                     self._send_message(client_socket, (self.REQUEST_LOCATIONS, locations))
                     return None
@@ -156,12 +155,12 @@ class Server:
                         self._send_message(client_socket, (self.INIT, "Setup complete"))
                         return None
                     elif token == self.ADMIN_TOKEN:
-                        if self._admin.socket is None and ":" in name: # and any(char.isdigit() for char in name):
+                        if self._admin.socket is None and ":" in name:  # and any(char.isdigit() for char in name):
                             self._admin.socket = client_socket
-                            name, visibility, team_count = name.split(":")
+                            name, visibility, team_count = name.split(":", 2)
                             team_count = int(team_count)
                             self._admin.is_visible = bool(int(visibility))
-                            self._client_locations.update({(token, client_socket): ('host - ' + name, 0, 0)})
+                            self._client_locations.update({(token, client_socket): ('host- ' + name, 0, 0)})
                             self._send_message(client_socket, (self.INIT,
                                                                (self.ADMIN_SETUP,
                                                                 self.generate_token(token_count=team_count))))
