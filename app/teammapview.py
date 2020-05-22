@@ -69,7 +69,7 @@ class TeamMapView(MapView):
 
     def add_mark(self, marker):
         nick, lon, lat = marker
-        if self.host_buttons:
+        if not self.host_buttons:
             if 'host-' in nick:
                 color_num = 0
             else:

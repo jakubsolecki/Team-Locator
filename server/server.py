@@ -33,7 +33,7 @@ class Server:
     UPDATE_LOCATION = "!UPDATE_LOCATION"
     ERROR = "!ERROR"
     ADMIN_SETUP = "!ADMIN"
-    ADMIN_TOKEN = "/0000000/"
+    ADMIN_TOKEN = "/00/"
     CLOSE_GAME = "!CLOSE_GAME"
     START_GAME = "!START"
 
@@ -129,6 +129,7 @@ class Server:
                         self._admin.socket = None
                         self._admin.token = None
                         self._admin.is_visible = False
+                        self._client_locations.pop((msg[1], client_socket))
                     self._sockets_list.remove(client_socket)
                     client_socket.shutdown(socket.SHUT_RDWR)
                     client_socket.close()
@@ -140,23 +141,32 @@ class Server:
 
                 elif msg[0] == self.REQUEST_LOCATIONS:  # send client his teammates' locations
                     if msg[1] == self.ADMIN_TOKEN:
-                        locations = [value for key, value in self._client_locations.items() if key[1] != client_socket]
+                        # locations = [value for key, value in self._client_locations.items() if key[1] != client_socket]
+                        locations = []
+                        for key, value in self._client_locations.items():
+                            if key[1] != client_socket:
+                                locations.append((key[0][0] + ':' + value[0], value[1], value[2]))
                     else:
                         locations = [value for key, value in self._client_locations.items() if
-                                     (key[0] == msg[1] or (key[0] == self.ADMIN_TOKEN and self._admin.is_visible)) and
+                                     key[0] == msg[1] and key[0] != self.ADMIN_TOKEN and
                                      key[1] != client_socket]
+                        if self._admin.is_visible and self._admin.socket:
+                            admin_coords = self._client_locations[(self.ADMIN_TOKEN, self._admin.socket)]
+                            new_admin_coords = ('host- ' + admin_coords[0], admin_coords[1], admin_coords[2])
+                            locations.append(new_admin_coords)
                     self._send_message(client_socket, (self.REQUEST_LOCATIONS, locations))
                     return None
 
                 elif msg[0] == self.INIT:  # client setup
                     token, name = msg[1].split(':', 1)
                     if token in self._tokens:
-                        self._client_locations.update({(token, client_socket): (name, 0, 0)})
+                        self._client_locations.update({(token, client_socket): (token[0] + name, 0, 0)})
                         self._send_message(client_socket, (self.INIT, "Setup complete"))
                         return None
                     elif token == self.ADMIN_TOKEN:
-                        if self._admin.socket is None and ":" in name:  # and any(char.isdigit() for char in name):
+                        if self._admin.socket is None and ":" in name:
                             self._admin.socket = client_socket
+                            self._admin.token = token
                             name, visibility, team_count = name.split(":", 2)
                             team_count = int(team_count)
                             self._admin.is_visible = bool(int(visibility))
@@ -244,7 +254,7 @@ class Server:
                     self._handle_message(notified_socket)
 
     # generate new token for each team
-    def generate_token(self, token_count, token_len=7):
+    def generate_token(self, token_count, token_len=4):
         if not self._tokens:
             for i in range(min(token_count, 10)):
                 token = f'{i}' + ''.join(choice(ascii_uppercase) for _ in range(token_len))
