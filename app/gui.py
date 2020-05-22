@@ -32,9 +32,9 @@ class TokenWindow(Screen):
         self.client.send_message(self.client.DISCONNECT_MESSAGE, self.code.text)
 
     def host_connect(self):
-        self.client.connect()
-        if not self.client._connected:
-            return
+        #self.client.connect()
+        #if not self.client._connected:
+        #    return
         screen = App.get_running_app().root
         screen.current = "host"
         atexit.register(self.disconnect)
@@ -82,10 +82,14 @@ class HostWindow(Screen):
     teamNumber = 0
 
     def create_nodes(self):
+        if int(self.slider.value) == self.teamNumber:
+            return
+        self.teamNumber = int(self.slider.value)
         for node in [i for i in self.tv.iterate_all_nodes()]:
             self.tv.remove_node(node)
 
         for i in range(int(self.slider.value)):
+            print("Spawning: " + str(i))
             self.teamNumber = i + 1
             name = 'Druzyna ' + str(i + 1)
             color = get_color_from_hex(color_dictionary[i + 1])
