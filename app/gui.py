@@ -42,7 +42,7 @@ class TokenWindow(Screen):
         atexit.register(self.disconnect)
 
     def player_connect(self):
-        if 'host-' in self.nick.text:
+        if 'host-' in self.nick.text or ':' in self.nick.text:
             return
 
         self.client.connect()
@@ -162,4 +162,5 @@ class BtnPopup(Widget):
         map.remove_host_buttons()
         tw = App.get_running_app().root.ids.tw
         map.remove_widget(tw.current_blinker)
+        map.host_buttons = None
 

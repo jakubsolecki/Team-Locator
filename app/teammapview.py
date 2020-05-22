@@ -68,11 +68,15 @@ class TeamMapView(MapView):
             self.add_mark(marker)
 
     def add_mark(self, marker):
-        if 'host-' in marker[0]:
-            color_num = 0
-        else:
-            color_num = App.get_running_app().root.ids.tw.colornum
         nick, lon, lat = marker
+        if self.host_buttons:
+            if 'host-' in nick:
+                color_num = 0
+            else:
+                color_num = App.get_running_app().root.ids.tw.colornum
+        else:
+            color_num, nick = nick.split(':', 1)
+
         popup = TeamMarker(lat=lat, lon=lon, nick=nick, colorNum=color_num)
         self.add_widget(popup)
         self.markerArr.append(popup)
