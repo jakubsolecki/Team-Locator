@@ -13,7 +13,6 @@ from gpsblinker import GpsBlinker
 import atexit
 from gpsmodule import GpsModule
 
-from kivymd.theming import ThemeManager
 
 class WindowManager(ScreenManager):
     pass
@@ -28,6 +27,7 @@ class TokenWindow(Screen):
     code = ObjectProperty(None)
     client = Client.get_instance()
     colornum = 0  # Expected to change. If players stay black something is wrong
+    current_blinker = None
 
     def disconnect(self):
         self.client.send_message(self.client.DISCONNECT_MESSAGE, self.code.text)
@@ -41,6 +41,9 @@ class TokenWindow(Screen):
         atexit.register(self.disconnect)
 
     def player_connect(self):
+        if 'host-' in self.nick.text:
+            return
+
         self.client.connect()
         if not self.client._connected:
             return
@@ -60,7 +63,7 @@ class TokenWindow(Screen):
             self.colornum = int(self.code.text[1])
 
         # GPS always starts in our faculty building <3
-        blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=self.nick.text, color_number=self.colornum)
+        self.current_blinker = blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=self.nick.text, color_number=self.colornum)
 
         map = App.get_running_app().root.ids.mw.ids.map
         map.add_widget(blinker)
@@ -78,7 +81,7 @@ class HostWindow(Screen):
     switch = ObjectProperty(None)  # Set to None because it is created before actual switch from .kv file
     slider = ObjectProperty(None)
     tv = ObjectProperty(None)
-    current_blinker = None
+
 
     hostVisible = False
     teamNumber = 0
@@ -114,7 +117,8 @@ class HostWindow(Screen):
         #    return
 
         map = App.get_running_app().root.ids.mw.ids.map
-        self.current_blinker = blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=nickname, color_number=0)
+        tw = App.get_running_app().root.ids.tw
+        tw.current_blinker = blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=nickname, color_number=0)
         map.add_widget(blinker)
         blinker.blink()
         map.add_host_buttons()
@@ -151,8 +155,11 @@ class BtnPopup(Widget):
         show_popup(text=self.text)
 
     def terminate_game_remove_host_privileges(self):
-        #TODO To be impemented after server upgrade
+        client = Client.get_instance()
+        client.send_message(client.CLOSE_GAME, '')  # TODO: IS IT CORRECT?
+
         map = App.get_running_app().root.ids.mw.ids.map
         map.remove_host_buttons()
-        hw = App.get_running_app().root.ids.hw
-        map.remove_widget(hw.current_blinker)
+        tw = App.get_running_app().root.ids.tw
+        map.remove_widget(tw.current_blinker)
+

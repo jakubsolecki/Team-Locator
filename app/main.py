@@ -26,16 +26,11 @@ if __name__ == "__main__":
 
 '''
 TODO APP LIST:
-    EXIT button for host isn't working
-        CAN SERVER BE HOSTED ON SAME PASSWORD? MUST BE CHECKED
-    how others see host? Right now I guess the same color as others
-    show full team doesnt work if solo on server
     deal with included libraries trash
     clean cache 
-    do something when server is down???
-    
-MY WORRIES:
-    gui.py accesses client data without LOCKs
-    GPSMODULE OVERRIDES CLIENT'S _LON AND _LAT BUT IS THERE BETTER CHOICE?
+    need to show info after host terminated game. Prolly in teammapview drawing points check if connection is closed  
+    show team codes as host
+    what if you dont get a host?
+    do I terminate game correctly?
 '''
 
