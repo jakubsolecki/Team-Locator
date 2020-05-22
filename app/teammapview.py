@@ -52,8 +52,8 @@ class TeamMapView(MapView):
         self.host_buttons = None
 
     def get_markers_in_fov(self, *args):
-        markers = self.markers
-        #markers = self.client._markers
+        # markers = self.markers
+        markers = self.client._markers
         for mark in self.markerArr:
             self.remove_widget(mark)  # Visible by user? Nope. Efficient? HELL NAH; Easy to implement? HELL YEAH
         self.markerArr.clear()

@@ -7,7 +7,6 @@ import hmac
 import hashlib
 from random import choice
 from string import ascii_uppercase
-import distutils.util
 
 
 class Admin:
@@ -156,15 +155,15 @@ class Server:
                         self._client_locations.update({(token, client_socket): (name, 0, 0)})
                         self._send_message(client_socket, (self.INIT, "Setup complete"))
                         return None
-                    elif token == self._admin.token:
-                        if self._admin.socket is None and ":" in name and any(char.isdigit() for char in name):
+                    elif token == self.ADMIN_TOKEN:
+                        if self._admin.socket is None and ":" in name: # and any(char.isdigit() for char in name):
                             self._admin.socket = client_socket
                             name, visibility, team_count = name.split(":")
-                            self._token_count = int(team_count)
-                            self._admin.is_visible = bool(distutils.util.strtobool(visibility))
+                            team_count = int(team_count)
+                            self._admin.is_visible = bool(int(visibility))
                             self._client_locations.update({(token, client_socket): ('host - ' + name, 0, 0)})
-                            self._send_message(client_socket, (self.ADMIN_SETUP,
-                                                               ("Setup complete",
+                            self._send_message(client_socket, (self.INIT,
+                                                               (self.ADMIN_SETUP,
                                                                 self.generate_token(token_count=team_count))))
                             return None
                         else:
@@ -194,8 +193,10 @@ class Server:
                 key_to_remove = None
                 for key in self._client_locations.keys():
                     if key[1] == client_socket:
+                        key_to_remove = key
                         break
-                self._client_locations.pop(key_to_remove)
+                if key_to_remove:
+                    self._client_locations.pop(key_to_remove)
                 client_socket.shutdown(socket.SHUT_RDWR)
                 client_socket.close()
 
@@ -206,6 +207,7 @@ class Server:
 
     # send message to client
     def _send_message(self, connection, msg):
+        print(f"[MESSAGE] {msg}")
         msg = pickle.dumps(msg)
         digest = hmac.new(self._KEY, msg, hashlib.sha256).digest()
         length = len(digest) + len(msg) + 2
@@ -244,20 +246,19 @@ class Server:
 
     # generate new token for each team
     def generate_token(self, token_count, token_len=7):
-        # for i in range(min(token_count, 10)):
-        #     token = f'{i}' + ''.join(choice(ascii_uppercase) for _ in range(token_len))
-        #     while token in self._tokens:
-        #         token = f'{i}' + ''.join(choice(ascii_uppercase) for _ in range(token_len))
-
-        token = "#ABCD"
-        self._tokens.append(token)
-        print(f"[NEW TOKEN] {token}")
+        if not self._tokens:
+            for i in range(min(token_count, 10)):
+                token = f'{i}' + ''.join(choice(ascii_uppercase) for _ in range(token_len))
+                while token in self._tokens:
+                    token = f'{i}' + ''.join(choice(ascii_uppercase) for _ in range(token_len))
+                print(f"[NEW TOKEN] {token}")
+                self._tokens.append(token)
+        return self._tokens
 
 
 if __name__ == "__main__":
     # hardcoded testing
     s = Server()
-    s.generate_token(10)
     # s.generate_token()
     # s.generate_token()
     s.start()
