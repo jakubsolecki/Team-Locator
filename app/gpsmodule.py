@@ -40,7 +40,7 @@ class GpsModule():
         client._lat = my_lat
 
         # centers map:
-        if not self.is_centered_map:
+        if not self.has_centered_map:
             map = App.get_running_app().root.ids.mw.ids.map
             map.center_on(my_lat, my_lon)
             self.has_centered_map = True

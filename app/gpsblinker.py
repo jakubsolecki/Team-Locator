@@ -1,7 +1,7 @@
 from kivy.garden.mapview import MapMarkerPopup
 from kivy.animation import Animation
 from kivy.utils import get_color_from_hex
-
+from kivy.metrics import *
 from colordict import color_dictionary
 
 
