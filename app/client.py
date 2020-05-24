@@ -28,14 +28,14 @@ class Client:
     DISCONNECT_MESSAGE = "!DISCONNECT"
     REQUEST_LOCATIONS = "!REQUEST_LOCATIONS"
     UPDATE_LOCATION = "!UPDATE_LOCATION"
-    ADMIN_TOKEN = "/00/"
     ADMIN_SETUP = "!ADMIN"
     ERROR = "!ERROR"
     CLOSE_GAME = "!CLOSE_GAME"
     START_GAME = "!START"
 
     # this key is secret, plz don't read it
-    _KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
+    # _KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
+    _KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1s'
 
     __instance = None
 
