@@ -17,8 +17,8 @@
     tv: tv
 
     GridLayout:
-        #padding:10
-        #spacing:10
+        #padding: '10sp'
+        #spacing: '10sp'
         cols: 1
 
         Label:
@@ -42,12 +42,9 @@
             size: root.width, root.height * 0.6
             size_hint: None, None
 
-
         Button:
             text: "Connect"
             on_release: root.host_to_server()
-            #on_release: app.root.current = "viewer"
-
         Button:
             text: "Go back"
             on_release: app.root.current = "menu"
@@ -75,15 +72,15 @@
 
     GridLayout:
         cols: 1
-        padding:10
-        spacing:10
+        padding: '10sp'
+        spacing: '10sp'
         background_color: 0.5,0.5,0.5,1
 
         Label:
             text:"TEAM-LOCATOR"
             bold:True
             color:[0.5,1,0.5,1]
-            font_size:35
+            font_size: '35sp'
 
         Label:
             text:"Nickname:"
@@ -92,40 +89,40 @@
         GridLayout:
             cols: 3
             size_hint_y:None
-            height:50
+            height: '50sp'
             Widget:
                 size_hint_x:None
-                width:50
+                width: '50sp'
             TextInput:
-                padding:16
+                padding: '16sp'
                 id: nick
                 multiline: False
                 hint_text:'Nickname...'
             Widget:
                 size_hint_x:None
-                width:50
+                width: '50sp'
         Widget:
-            height:10
+            height: '10sp'
             size_hint_y:None
         Label:
             text:"Team / Host code:"
             size_hint_y:None
-            height:50
+            height: '50sp'
         GridLayout:
             cols: 3
             size_hint_y:None
-            height:50
+            height: '50sp'
             Widget:
                 size_hint_x:None
-                width:75
+                width: '75sp'
             TextInput:
-                padding:16
+                padding: '16sp'
                 id: code
                 multiline: False
                 hint_text:'Team / Host code...'
             Widget:
                 size_hint_x:None
-                width:75
+                width: '75sp'
 
         Widget:
         Button:

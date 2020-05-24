@@ -10,8 +10,10 @@ from client import Client
 from colordict import color_dictionary
 from kivy.utils import get_color_from_hex
 from gpsblinker import GpsBlinker
-import atexit
+from kivy.metrics import *
 from gpsmodule import GpsModule
+import atexit
+
 
 
 class WindowManager(ScreenManager):
@@ -31,12 +33,12 @@ class TokenWindow(Screen):
 
     def disconnect(self):
         self.client.send_message(self.client.DISCONNECT_MESSAGE, self.code.text)
-        sleep(1)  # TODO: REMOVE SLEEP?
+        sleep(1)
 
     def host_connect(self):
-        self.client.connect()
-        if not self.client._connected:
-            return
+        #self.client.connect()
+        #if not self.client._connected:
+        #    return
         screen = App.get_running_app().root
         screen.current = "host"
         atexit.register(self.disconnect)
@@ -115,8 +117,8 @@ class HostWindow(Screen):
 
         sleep(1)
 
-        if client._token is None:
-            return
+        #if client._token is None:
+        #    return
 
         map = App.get_running_app().root.ids.mw.ids.map
         tw = App.get_running_app().root.ids.tw
@@ -134,7 +136,7 @@ class HostWindow(Screen):
 # -----------------------------These classes made for pop window of team tokens-----------------------------------------
 def show_popup(text):
     show = Pop(text)
-    popupWindow = Popup(title="Password for teams:", content=show, size_hint=(None, None), size=(200, 400))
+    popupWindow = Popup(title="Password for teams:", content=show, size_hint=(None, None), size=(sp(200), sp(400)))
     popupWindow.open()
 
 
