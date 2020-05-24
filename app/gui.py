@@ -28,7 +28,7 @@ class TokenWindow(Screen):
     nick = ObjectProperty(None)
     code = ObjectProperty(None)
     client = Client.get_instance()
-    colornum = 0  # Expected to change. If players stay black something is wrong
+    colornum = 10  # Expected to change. If players stay black something is wrong
     current_blinker = None
 
     def disconnect(self):
@@ -102,7 +102,7 @@ class HostWindow(Screen):
         for i in range(int(self.slider.value)):
             self.teamNumber = i + 1
             name = 'Druzyna ' + str(i + 1)
-            color = get_color_from_hex(color_dictionary[i + 1])
+            color = get_color_from_hex(color_dictionary[i])
             self.tv.add_node(TreeViewLabel(text=name, color=color))
 
     def host_to_server(self):
@@ -124,7 +124,7 @@ class HostWindow(Screen):
 
         map = App.get_running_app().root.ids.mw.ids.map
         tw = App.get_running_app().root.ids.tw
-        tw.current_blinker = blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=nickname, color_number=0)
+        tw.current_blinker = blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=nickname, color_number=10)
         map.add_widget(blinker)
         blinker.blink()
         map.add_host_buttons()

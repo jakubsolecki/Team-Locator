@@ -81,7 +81,7 @@ class TeamMapView(MapView):
         nick, lon, lat = marker
         if not self.host_buttons:
             if 'host-' in nick:
-                color_num = 0
+                color_num = 10
             else:
                 color_num = App.get_running_app().root.ids.tw.colornum
         else:
