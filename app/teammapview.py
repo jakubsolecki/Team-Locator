@@ -60,7 +60,7 @@ class TeamMapView(MapView):
 
     def get_markers_in_fov(self, *args):
         if not self.client._token and self.start_checking:  # Returns you to menu if server restarted
-            #self.event.cancel()
+            self.remove_widget(App.get_running_app().root.ids.tw.current_blinker)
             screen = App.get_running_app().root
             screen.current = "menu"
             self.start_checking = False

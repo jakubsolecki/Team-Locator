@@ -36,17 +36,19 @@ class TokenWindow(Screen):
         sleep(1)
 
     def host_connect(self):
-        #self.client.connect()
-        #if not self.client._connected:
-        #    return
+        if 'host-' in self.nick.text or ':' in self.nick.text or len(self.nick.text) >= 16 or len(self.code.text) > 10:
+            return
+        self.client.connect()
+        if not self.client._connected:
+            return
+
         screen = App.get_running_app().root
         screen.current = "host"
         atexit.register(self.disconnect)
 
     def player_connect(self):
-        if 'host-' in self.nick.text or ':' in self.nick.text:
+        if 'host-' in self.nick.text or ':' in self.nick.text or len(self.nick.text) >= 16 or len(self.code.text) > 10:
             return
-
         self.client.connect()
         if not self.client._connected:
             return
@@ -117,8 +119,8 @@ class HostWindow(Screen):
 
         sleep(1)
 
-        #if client._token is None:
-        #    return
+        if client._token is None:
+            return
 
         map = App.get_running_app().root.ids.mw.ids.map
         tw = App.get_running_app().root.ids.tw
