@@ -7,13 +7,8 @@ import time
 import signal
 import hmac
 import hashlib
-
-'''
-General TODO:
-    - improve handling messages
-    - improve sending messages
-    - clean code
-'''
+import shutil
+import os
 
 
 # ============== Client is a singleton therefore it must always be created/accessed using get_instance() ==============

@@ -137,7 +137,6 @@ class Server:
 
                 elif msg[0] == self.REQUEST_LOCATIONS:  # send client his teammates' locations
                     if msg[1] == self.ADMIN_TOKEN:
-                        # locations = [value for key, value in self._client_locations.items() if key[1] != client_socket]
                         locations = []
                         for key, value in self._client_locations.items():
                             if key[1] != client_socket:
