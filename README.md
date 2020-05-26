@@ -5,6 +5,7 @@
 # Team-Locator
 
 Team-Locator is a Python Kivy-based app made for better coordination of outdoor games. The idea is simple: each of the players can see other teammates' actual postions on smartphone.
+Simply run the app, create username, provide token obtained from game supervisor and hit connect. That's it! Now you're able to see all your teammates' positions in real time.
 
 ## Contributors:
 <table>
