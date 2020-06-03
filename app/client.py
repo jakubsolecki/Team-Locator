@@ -7,8 +7,6 @@ import time
 import signal
 import hmac
 import hashlib
-import shutil
-import os
 
 
 # ============== Client is a singleton therefore it must always be created/accessed using get_instance() ==============
@@ -29,7 +27,6 @@ class Client:
     START_GAME = "!START"
 
     # this key is secret, plz don't read it
-    # _KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
     _KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1s'
 
     __instance = None

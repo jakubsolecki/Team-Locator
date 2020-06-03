@@ -6,7 +6,7 @@ import select
 import hmac
 import hashlib
 from random import choice
-from string import ascii_uppercase
+from string import ascii_uppercase, ascii_lowercase
 
 
 class Admin:
@@ -33,7 +33,6 @@ class Server:
     START_GAME = "!START"
 
     # this key is secret, plz don't read it
-    # _KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
     _KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1s'
 
     def __init__(self):
@@ -71,7 +70,7 @@ class Server:
         print("Socket binding complete")
         self._my_socket.listen()
         print(f"[LISTENING] Server is listening on {self.SERVER}")
-        # self._admin.token = self.ADMIN_TOKEN
+        self.generate_token(0, for_admin=True)
         print(f"[ADMINISTRATOR SETUP] Use this token to gain admin access: {self.ADMIN_TOKEN}")
         self._listen_to_sockets()
 
@@ -249,14 +248,17 @@ class Server:
                     self._handle_message(notified_socket)
 
     # generate new token for each team
-    def generate_token(self, token_count, token_len=4):
-        if not self._tokens:
+    def generate_token(self, token_count, token_len=4, for_admin=False):
+        if not self._tokens and not for_admin:
             for i in range(min(token_count, 10)):
                 token = f'{i}' + ''.join(choice(ascii_uppercase) for _ in range(token_len))
                 while token in self._tokens:
                     token = f'{i}' + ''.join(choice(ascii_uppercase) for _ in range(token_len))
                 print(f"[NEW TOKEN] {token}")
                 self._tokens.append(token)
+        if for_admin:
+            self.ADMIN_TOKEN = ''.join(choice(ascii_lowercase) for _ in range(token_len))
+
         return self._tokens
 
 
