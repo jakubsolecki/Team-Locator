@@ -1,64 +1,119 @@
 import kivy
+import ssl
+import certifi
+import geopy.geocoders
 from geopy.geocoders import Nominatim
 from mapview import MapView, MapMarker, MapSource
 from kivy.clock import Clock
-from kivy.garden.mapview import MapMarkerPopup
 from kivy.app import App
+from teammarker import TeamMarker
+
+from client import Client
+import gui
 
 
 class TeamMapView(MapView):
-    refresh_timer = None
+    markerArr = []
+    host_buttons = None
+    event = None
+    start_checking = False
+
+    client = Client.get_instance()
+
+    ctx = ssl.create_default_context(cafile=certifi.where())
+    geopy.geocoders.options.default_ssl_context = ctx
 
     geolocator = Nominatim(user_agent="GeoTestApp")
     location = geolocator.geocode("21 Kawiory, Kraków")
-    # location = droid.getLastKnownLocation().result
-    # location = location.get('gps') or location.get('network')
-    # lon = droid.geocode(location['longitude'])
-    # lat = droid.geocode(location['latitude'])
+
     longitude = location.longitude
     latitude = location.latitude
 
     # Mock markers
-    # TODO: all markers to single 2D-array, markers[0] is local position and move them to another class?,
-    # add unique ID for each marker?
-    markers = [[longitude, latitude], [longitude + 0.0001, latitude + 0.001], [longitude + 0.01, latitude - 0.001],
-               [longitude + 0.001, latitude - 0.01]]
+    # markers = [
+    #     ("ElKozako", longitude + 0.001, latitude - 0.001),
+    #     ("host-Shrek", longitude + 0.0001, latitude + 0.001),
+    #     ("Czeslaw Niemen", longitude + 0.01, latitude - 0.001),
+    #     ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
+    # ]
 
-    def draw_markers(self):
-        try:
-           self.refresh_timer.cancel()
-        except:  # TODO: remove?
-            pass
-        self.refresh_timer = Clock.schedule_once(self.get_markers_in_fov, 0.1)
+    def __init__(self, **kwargs):
+        self.event = Clock.schedule_interval(self.get_markers_in_fov, 2)
+        super(TeamMapView, self).__init__(**kwargs)
+
+    def add_host_buttons(self):
+        window = App.get_running_app().root.ids.mw
+        codes = ''
+        i = 1
+        print(self.client._all_tokens)
+        for token in  self.client._all_tokens:
+            codes = "\n" + codes + "Team " + str(i) + ":  " + token + "\n"
+            i = i + 1
+
+        self.host_buttons = btn = gui.BtnPopup(codes)
+        window.add_widget(self.host_buttons)
+
+    def remove_host_buttons(self):
+        window = App.get_running_app().root.ids.mw
+        window.remove_widget(self.host_buttons)
+        self.host_buttons = None
 
     def get_markers_in_fov(self, *args):
-        d_lat, d_lon, u_lat, u_lon = self.get_bbox()
-        for marker in self.markers:
-            if d_lat < marker[1] < u_lat and d_lon < marker[0] < u_lon:
-                self.add_mark(marker)
+        if not self.client._token and self.start_checking:  # Returns you to menu if server restarted
+            self.remove_widget(App.get_running_app().root.ids.tw.current_blinker)
+            screen = App.get_running_app().root
+            screen.current = "menu"
+            self.start_checking = False
+            print(self.client._token, self.client._connected, self.client._sockets)
+            return
+
+        # markers = self.markers
+        markers = self.client._markers
+
+        for mark in self.markerArr:
+            self.remove_widget(mark)  # Visible by user? Nope. Efficient? HELL NAH; Easy to implement? HELL YEAH
+        self.markerArr.clear()
+
+        for marker in markers:
+            self.add_mark(marker)
 
     def add_mark(self, marker):
-        lat, lon = marker[1], marker[0]
-        popup = MapMarkerPopup(lat=lat, lon=lon)
+        nick, lon, lat = marker
+        if not self.host_buttons:
+            if 'host-' in nick:
+                color_num = 10
+            else:
+                color_num = App.get_running_app().root.ids.tw.colornum
+        else:
+            color_num, nick = nick.split(':', 1)
+            color_num = int(color_num)
+
+        popup = TeamMarker(lat=lat, lon=lon, nick=nick, colorNum=color_num)
         self.add_widget(popup)
-        pass
+        self.markerArr.append(popup)
 
     def show_full_team(self):  # centers map to middle of the team, not player
-        min_lon = min(i[0] for i in self.markers)
-        min_lat = min(i[1] for i in self.markers)
-        max_lon = max(i[0] for i in self.markers)
-        max_lat = max(i[1] for i in self.markers)
+        tw = App.get_running_app().root.ids.tw
+        self.center_on(tw.current_blinker.lat, tw.current_blinker.lon)
 
-        self.lon = (min_lon + max_lon)/2
-        self.lat = (min_lat + max_lat)/2
+        markers = self.client._markers
+        # markers = self.markers
+        if not markers:
+            self.zoom = 16
+            return
 
-        self.zoom = self.zoom + 1
+        min_lon = min(i[1] for i in markers)
+        min_lat = min(i[2] for i in markers)
+        max_lon = max(i[1] for i in markers)
+        max_lat = max(i[2] for i in markers)
 
+        while True:
+            d_lat, d_lon, u_lat, u_lon = self.get_bbox()
+            if min_lat < d_lat or max_lat > u_lat or min_lon < d_lon or max_lon > u_lon:
+                break
+            self.zoom = self.zoom + 1
         while True:
             d_lat, d_lon, u_lat, u_lon = self.get_bbox()
             if min_lat > d_lat and max_lat < u_lat and min_lon > d_lon and max_lon < u_lon:
                 return
-            self.zoom = self.zoom-1
-
-    pass
-
+            self.zoom = self.zoom - 1

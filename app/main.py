@@ -7,19 +7,29 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.properties import ObjectProperty
 from teammapview import TeamMapView
 from gui import WindowManager
+from gpsmodule import GpsModule
 import certifi
 import os
-
-
-# kv = Builder.load_file("gui.kv")
+import atexit
 
 
 class MainApp(App):
+    gps_mod = GpsModule()
+
     def on_start(self):
+        self.gps_mod.run()
         pass
 
 
 if __name__ == "__main__":
-    # Allows Internet connection on Android
-    os.environ['SSL_CERT_FILE'] = certifi.where()
     MainApp().run()
+
+'''
+TODO APP LIST:
+    deal with included libraries trash
+    clean cache 
+    need to show info after host terminated game. Prolly in teammapview drawing points check if connection is closed  
+    show team codes as host
+    what if you dont get a host?
+'''
+

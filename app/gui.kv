@@ -1,21 +1,62 @@
 #:include teammapview.kv
 
+
 <WindowManager>:
-    MapWindow:
     TokenWindow:
+        id:tw
+    HostWindow:
+        id:hw
+    MapWindow:
+        id:mw
+
+
+<HostWindow>:
+    name: "host"
+    switch: switch
+    slider: slider
+    tv: tv
+
+    GridLayout:
+        #padding: '10sp'
+        #spacing: '10sp'
+        cols: 1
+
+        Label:
+            text: "Tworzenie gry"
+        GridLayout:
+            cols: 2
+            Label:
+                text: "Host widoczny:"
+            Switch:
+                id: switch
+
+        Slider:
+            id: slider
+            min: 1
+            max: 10
+            step: 1
+            on_touch_move: root.create_nodes()
+
+        TreeView:
+            id: tv
+            size: root.width, root.height * 0.6
+            size_hint: None, None
+
+        Button:
+            text: "Connect"
+            on_release: root.host_to_server()
+        Button:
+            text: "Go back"
+            on_release: app.root.current = "menu"
 
 
 <MapWindow>:
     name: "viewer"
-
     GridLayout:
         cols: 1
 
-        GridLayout:
-            cols: 1
-
-            TeamMapView:
-                id: map
+        TeamMapView:
+            id: map
 
         Button:
             text: "Show full team"
@@ -23,26 +64,105 @@
             size: root.width, root.height * 0.1
             size_hint: None, None
 
-        Button:
-            text: "Leave"
-            on_release: app.root.current = "menu"
-            size: root.width, root.height * 0.1
-            size_hint: None, None
-
 
 <TokenWindow>:
     name: "menu"
+    nick:nick
+    code:code
 
     GridLayout:
         cols: 1
+        padding: '10sp'
+        spacing: '10sp'
+        background_color: 0.5,0.5,0.5,1
 
-        TextInput:
-            id: token
-            multiline: False
+        Label:
+            text:"TEAM-LOCATOR"
+            bold:True
+            color:[0.5,1,0.5,1]
+            font_size: '35sp'
 
+        Label:
+            text:"Nickname:"
+            size_hint_y:None
+            height:50
+        GridLayout:
+            cols: 3
+            size_hint_y:None
+            height: '50sp'
+            Widget:
+                size_hint_x:None
+                width: '50sp'
+            TextInput:
+                padding: '16sp'
+                id: nick
+                multiline: False
+                hint_text:'Nickname...'
+            Widget:
+                size_hint_x:None
+                width: '50sp'
+        Widget:
+            height: '10sp'
+            size_hint_y:None
+        Label:
+            text:"Team / Host code:"
+            size_hint_y:None
+            height: '50sp'
+        GridLayout:
+            cols: 3
+            size_hint_y:None
+            height: '50sp'
+            Widget:
+                size_hint_x:None
+                width: '75sp'
+            TextInput:
+                padding: '16sp'
+                id: code
+                multiline: False
+                hint_text:'Team / Host code...'
+            Widget:
+                size_hint_x:None
+                width: '75sp'
+
+        Widget:
         Button:
-            text: "Connect"
-            on_release: app.root.current = "viewer"
-
+            text: "Connect Game"
+            #on_release: app.root.current = "viewer"
+            on_release: app.root.ids.tw.player_connect()
         Button:
-            text: "Generate new token"
+            text: "Host Game"
+            #on_release: app.root.current = "host"
+            on_release: app.root.ids.hw.create_nodes()
+            on_release: app.root.ids.tw.host_connect()
+
+
+<BtnPopup>:
+    Button:
+        size: root.width * 0.2, root.height * 0.05
+        top: self.height and root.y + root.height
+        text: "CODES"
+        on_release: root.click()
+
+    Label:
+        outline_color: 0, 0, 0, 1
+        color: 1, 1, 1, 1
+        outline_width: 2
+        size: root.width * 0.2, root.height * 0.05
+        top: self.height and root.y + root.height
+        right: self.width and root.x + (root.width/1.65)
+        text: ">> ADMIN <<"
+
+    Button:
+        size: root.width * 0.2, root.height * 0.05
+        right: self.width and root.x + root.width
+        top: self.height and root.y + root.height
+        text: "STOP"
+        on_release: app.root.current = "menu" #TODO: Add another popup so you don't accidentally close game by a single touch XD
+        on_release: root.terminate_game_remove_host_privileges()
+
+
+<Pop>:
+    Label:
+        text: root.text
+        size_hint: 0.6, 0.2
+        pos_hint: {"x":0.2, "top":1}
