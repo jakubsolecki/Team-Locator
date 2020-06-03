@@ -33,7 +33,6 @@ class Server:
     START_GAME = "!START"
 
     # this key is secret, plz don't read it
-    # _KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1sWlIQs794Sf7PyBEE5WNI4msgxr3ArhbwSaTtfo9hevT8zkqxWd'
     _KEY = b'epILh2fsAABQBJkwltgfz5Rvup3v9Hqkm1kNxtIu2xxYTalk1s'
 
     def __init__(self):
@@ -261,8 +260,5 @@ class Server:
 
 
 if __name__ == "__main__":
-    # hardcoded testing
     s = Server()
-    # s.generate_token()
-    # s.generate_token()
     s.start()
