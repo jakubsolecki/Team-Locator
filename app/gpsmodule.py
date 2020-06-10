@@ -3,15 +3,15 @@ from kivy.utils import platform
 from client import Client
 
 
-class GpsModule():
+class GpsModule:
     blinker = None
     has_centered_map = False
 
     def run(self):
-
         # persmissions on Android:
         if platform == 'android':
             from android.permissions import Permission, request_permissions
+
             def callback(permission, results):
                 if all([res for res in results]):
                     print("Got all permissions")
@@ -34,15 +34,12 @@ class GpsModule():
 
         self.blinker.lat = my_lat
         self.blinker.lon = my_lon
-
-        client = Client.get_instance()
-        client._lon = my_lon  # HUGELY UNRECOMMENDED
-        client._lat = my_lat
+        Client.get_instance().set_coordinates(my_lon, my_lat)
 
         # centers map:
         if not self.has_centered_map:
-            map = App.get_running_app().root.ids.mw.ids.map
-            map.center_on(my_lat, my_lon)
+            team_map = App.get_running_app().root.ids.mw.ids.map
+            team_map.center_on(my_lat, my_lon)
             self.has_centered_map = True
 
     def on_auth_status(self, general_status, status_message):

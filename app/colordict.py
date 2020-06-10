@@ -9,5 +9,5 @@ color_dictionary = {
     7:  '#510066',  # DARK PURPLE
     8:  '#0A24CC',  # BLUE
     9:  '#A85E32',  # BROWNISH
-    10: '#000000',  # BLACK // RESERVED FOR SERVER ADMIN??
+    10: '#000000',  # BLACK // RESERVED FOR SERVER ADMIN
 }

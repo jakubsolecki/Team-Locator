@@ -1,4 +1,3 @@
-import kivy
 import ssl
 import certifi
 import geopy.geocoders
@@ -7,7 +6,6 @@ from mapview import MapView, MapMarker, MapSource
 from kivy.clock import Clock
 from kivy.app import App
 from teammarker import TeamMarker
-
 from client import Client
 import gui
 
@@ -17,7 +15,6 @@ class TeamMapView(MapView):
     host_buttons = None
     event = None
     start_checking = False
-
     client = Client.get_instance()
 
     ctx = ssl.create_default_context(cafile=certifi.where())
@@ -29,14 +26,6 @@ class TeamMapView(MapView):
     longitude = location.longitude
     latitude = location.latitude
 
-    # Mock markers
-    # markers = [
-    #     ("ElKozako", longitude + 0.001, latitude - 0.001),
-    #     ("host-Shrek", longitude + 0.0001, latitude + 0.001),
-    #     ("Czeslaw Niemen", longitude + 0.01, latitude - 0.001),
-    #     ("xxxProWojPL99xxx", longitude + 0.001, latitude - 0.01)
-    # ]
-
     def __init__(self, **kwargs):
         self.event = Clock.schedule_interval(self.get_markers_in_fov, 2)
         super(TeamMapView, self).__init__(**kwargs)
@@ -45,12 +34,11 @@ class TeamMapView(MapView):
         window = App.get_running_app().root.ids.mw
         codes = ''
         i = 1
-        print(self.client._all_tokens)
-        for token in  self.client._all_tokens:
+        for token in self.client.get_all_tokens():
             codes = "\n" + codes + "Team " + str(i) + ":  " + token + "\n"
             i = i + 1
 
-        self.host_buttons = btn = gui.BtnPopup(codes)
+        self.host_buttons = gui.BtnPopup(codes)
         window.add_widget(self.host_buttons)
 
     def remove_host_buttons(self):
@@ -59,16 +47,14 @@ class TeamMapView(MapView):
         self.host_buttons = None
 
     def get_markers_in_fov(self, *args):
-        if not self.client._token and self.start_checking:  # Returns you to menu if server restarted
+        if not self.client.get_token() and self.start_checking:  # Returns you to menu if server restarted
             self.remove_widget(App.get_running_app().root.ids.tw.current_blinker)
             screen = App.get_running_app().root
             screen.current = "menu"
             self.start_checking = False
-            print(self.client._token, self.client._connected, self.client._sockets)
             return
 
-        # markers = self.markers
-        markers = self.client._markers
+        markers = self.client.get_markers()
 
         for mark in self.markerArr:
             self.remove_widget(mark)  # Visible by user? Nope. Efficient? HELL NAH; Easy to implement? HELL YEAH
@@ -92,12 +78,11 @@ class TeamMapView(MapView):
         self.add_widget(popup)
         self.markerArr.append(popup)
 
-    def show_full_team(self):  # centers map to middle of the team, not player
+    def show_full_team(self):  # centers map on the player
         tw = App.get_running_app().root.ids.tw
         self.center_on(tw.current_blinker.lat, tw.current_blinker.lon)
 
-        markers = self.client._markers
-        # markers = self.markers
+        markers = self.client.get_markers()
         if not markers:
             self.zoom = 16
             return

@@ -157,7 +157,7 @@
         right: self.width and root.x + root.width
         top: self.height and root.y + root.height
         text: "STOP"
-        on_release: app.root.current = "menu" #TODO: Add another popup so you don't accidentally close game by a single touch XD
+        on_release: app.root.current = "menu"
         on_release: root.terminate_game_remove_host_privileges()
 
 

@@ -13,7 +13,7 @@ import hashlib
 class Client:
     HEADER_SIZE = 64
     PORT = 5050
-    SERVER = '188.166.46.224'
+    SERVER = '127.0.0.1'
     ADDRESS = (SERVER, PORT)
     FORMAT = 'utf-8'
     INIT_MESSAGE = "!INIT"
@@ -56,6 +56,22 @@ class Client:
         self._lat = 0
         self._markers = []
         self._all_tokens = []
+
+    def get_markers(self):
+        return self._markers
+
+    def get_token(self):
+        return self._token
+
+    def is_connected(self):
+        return self._connected
+
+    def get_all_tokens(self):
+        return self._all_tokens
+
+    def set_coordinates(self, lon, lat):
+        self._lon = lon
+        self._lat = lat
 
     def _sigint_handler(self, signum, stack_frame):
         try:
@@ -160,7 +176,7 @@ class Client:
                                 self._my_socket.shutdown(socket.SHUT_RDWR)
                                 self._my_socket.close()
                                 self._token = None
-                            print("Closed connection with server")  # TODO: display
+                            print("Closed connection with server")
                             print(msg[1])
 
                         elif msg[0] == self.INIT_MESSAGE:
@@ -173,10 +189,10 @@ class Client:
                                 fetch_locations_thread = threading.Thread(target=self._fetch_locations_from_server)
                                 fetch_locations_thread.daemon = True
                                 fetch_locations_thread.start()
-                            print("Registration complete")  # TODO: display
+                            print("Registration complete")
 
                         elif msg[0] == self.ERROR:
-                            print(msg[1])  # TODO: display
+                            print(msg[1])
                             if msg[1] == "Incorrect token" or 'Admin has been already set':
                                 with self._r_lock:
                                     self._token = None

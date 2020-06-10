@@ -1,19 +1,17 @@
 from time import sleep
-from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.app import App
 from kivy.properties import ObjectProperty
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.treeview import TreeViewLabel
 from kivy.uix.popup import Popup
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
-from client import Client
-from colordict import color_dictionary
 from kivy.utils import get_color_from_hex
-from gpsblinker import GpsBlinker
 from kivy.metrics import *
-from gpsmodule import GpsModule
+from client import Client  # from app.client import Client
+from colordict import color_dictionary
+from gpsblinker import GpsBlinker
 import atexit
-
 
 
 class WindowManager(ScreenManager):
@@ -31,64 +29,61 @@ class TokenWindow(Screen):
     colornum = 10  # Expected to change. If players stay black something is wrong
     current_blinker = None
 
-    def disconnect(self):
+    def __disconnect(self):
         self.client.send_message(self.client.DISCONNECT_MESSAGE, self.code.text)
         sleep(1)
 
-    def host_connect(self):
+    def __connect(self):
         if 'host-' in self.nick.text or ':' in self.nick.text or len(self.nick.text) >= 16 or len(self.code.text) > 10:
             return
         self.client.connect()
-        if not self.client._connected:
+
+    # after pressing Host Game button:
+    def host_connect(self):
+        self.__connect()
+        if not self.client.is_connected():
             return
+        atexit.register(self.__disconnect)
 
         screen = App.get_running_app().root
         screen.current = "host"
+
+    # after pressing Connect Game button:
+    def player_connect(self):
+        self.__connect()
+        if not self.client.is_connected():
+            return
         atexit.register(self.disconnect)
 
-    def player_connect(self):
-        if 'host-' in self.nick.text or ':' in self.nick.text or len(self.nick.text) >= 16 or len(self.code.text) > 10:
-            return
-        self.client.connect()
-        if not self.client._connected:
-            return
-
         message = self.code.text + ":" + self.nick.text
-        print("Message sent to server: " + message)
-
+        print("Message being sent to server: " + message)
         self.client.send_message(self.client.INIT_MESSAGE, message)
 
         sleep(1)
-
-        if self.client._token is None:
+        if self.client.get_token() is None:
             return
 
-        # Takes second letter as number from 0 to 9: || #1ABCD means color 1 ||
+        # Takes first letter as number from 0 to 9: || #1ABCD means color 1 ||
         if len(self.code.text) >= 1 and self.code.text[0].isdigit():
             self.colornum = int(self.code.text[0])
 
         # GPS always starts in our faculty building <3
-        self.current_blinker = blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=self.nick.text, color_number=self.colornum)
-
-        map = App.get_running_app().root.ids.mw.ids.map
-        map.add_widget(blinker)
-        map.start_checking = True
+        self.current_blinker = blinker = GpsBlinker(lon=19.9125399, lat=50.0680966,
+                                                    nick=self.nick.text, color_number=self.colornum)
+        team_map = App.get_running_app().root.ids.mw.ids.map
+        team_map.add_widget(blinker)
+        team_map.start_checking = True
         blinker.blink()
-
         App.get_running_app().gps_mod.start_updating(blinker)
 
         screen = App.get_running_app().root
         screen.current = "viewer"
 
 
-        atexit.register(self.disconnect)
-
-
-class HostWindow(Screen):
+class HostWindow(Screen):  # Window for setting game rules
     switch = ObjectProperty(None)  # Set to None because it is created before actual switch from .kv file
     slider = ObjectProperty(None)
     tv = ObjectProperty(None)
-
     hostVisible = False
     teamNumber = 0
 
@@ -119,16 +114,17 @@ class HostWindow(Screen):
 
         sleep(1)
 
-        if client._token is None:
+        if client.get_token is None:
             return
 
-        map = App.get_running_app().root.ids.mw.ids.map
         tw = App.get_running_app().root.ids.tw
         tw.current_blinker = blinker = GpsBlinker(lon=19.9125399, lat=50.0680966, nick=nickname, color_number=10)
-        map.add_widget(blinker)
-        blinker.blink()
-        map.add_host_buttons()
 
+        team_map = App.get_running_app().root.ids.mw.ids.map
+        team_map.add_widget(blinker)
+        team_map.add_host_buttons()
+
+        blinker.blink()
         App.get_running_app().gps_mod.start_updating(blinker)
 
         screen = App.get_running_app().root
@@ -162,11 +158,10 @@ class BtnPopup(Widget):
 
     def terminate_game_remove_host_privileges(self):
         client = Client.get_instance()
-        client.send_message(client.CLOSE_GAME, None)  # TODO: IS IT CORRECT?
+        client.send_message(client.CLOSE_GAME, None)
 
-        map = App.get_running_app().root.ids.mw.ids.map
-        map.remove_host_buttons()
+        team_map = App.get_running_app().root.ids.mw.ids.map
+        team_map.remove_host_buttons()
         tw = App.get_running_app().root.ids.tw
-        map.remove_widget(tw.current_blinker)
-        map.host_buttons = None
-
+        team_map.remove_widget(tw.current_blinker)
+        team_map.host_buttons = None
