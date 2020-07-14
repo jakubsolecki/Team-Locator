@@ -1,6 +1,5 @@
 #:include teammapview.kv
 
-
 <WindowManager>:
     TokenWindow:
         id:tw
@@ -67,6 +66,7 @@
 
 <TokenWindow>:
     name: "menu"
+    ip_address:ip_address
     nick:nick
     code:code
 
@@ -83,6 +83,29 @@
             font_size: '35sp'
 
         Label:
+            text:"IP address:"
+            size_hint_y:None
+            height:50
+        GridLayout:
+            cols: 3
+            size_hint_y:None
+            height: '50sp'
+            Widget:
+                size_hint_x:None
+                width: '50sp'
+            TextInput:
+                text: root.stored_data.get('credentials')['ip_address'] if root.stored_data.exists('credentials') else ''
+                padding: '16sp'
+                id: ip_address
+                multiline: False
+                hint_text:'IP address...'
+            Widget:
+                size_hint_x:None
+                width: '50sp'
+        Widget:
+            height: '10sp'
+            size_hint_y:None
+        Label:
             text:"Nickname:"
             size_hint_y:None
             height:50
@@ -94,6 +117,7 @@
                 size_hint_x:None
                 width: '50sp'
             TextInput:
+                text: root.stored_data.get('credentials')['nick'] if root.stored_data.exists('credentials') else ''
                 padding: '16sp'
                 id: nick
                 multiline: False

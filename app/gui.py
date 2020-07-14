@@ -11,7 +11,10 @@ from kivy.metrics import *
 from client import Client  # from app.client import Client
 from colordict import color_dictionary
 from gpsblinker import GpsBlinker
+from kivy.storage.jsonstore import JsonStore
 import atexit
+import os
+import glob
 
 
 class WindowManager(ScreenManager):
@@ -25,18 +28,26 @@ class MapWindow(Screen):
 class TokenWindow(Screen):
     nick = ObjectProperty(None)
     code = ObjectProperty(None)
+    ip_address = ObjectProperty(None)
     client = Client.get_instance()
     colornum = 10  # Expected to change. If players stay black something is wrong
     current_blinker = None
+    stored_data = JsonStore('data.json')
 
     def __disconnect(self):
+        files = glob.glob('cache/*.png')
+        for f in files:
+            os.remove(f)
         self.client.send_message(self.client.DISCONNECT_MESSAGE, self.code.text)
         sleep(1)
 
     def __connect(self):
-        if 'host-' in self.nick.text or ':' in self.nick.text or len(self.nick.text) >= 16 or len(self.code.text) > 10:
+        if 'host-' in self.nick.text or ':' in self.nick.text or\
+                len(self.nick.text) >= 16 or\
+                len(self.code.text) > 10 or\
+                len(self.ip_address.text) > 16:
             return
-        self.client.connect()
+        self.client.connect(server_ip=self.ip_address.text)
 
     # after pressing Host Game button:
     def host_connect(self):
@@ -47,6 +58,8 @@ class TokenWindow(Screen):
 
         screen = App.get_running_app().root
         screen.current = "host"
+        self.stored_data.clear()
+        self.stored_data.put('credentials', ip_address=self.ip_address.text, nick=self.nick.text)
 
     # after pressing Connect Game button:
     def player_connect(self):
@@ -75,6 +88,9 @@ class TokenWindow(Screen):
         team_map.start_checking = True
         blinker.blink()
         App.get_running_app().gps_mod.start_updating(blinker)
+
+        self.stored_data.clear()
+        self.stored_data.put('credentials', ip_address=self.ip_address.text, nick=self.nick.text)
 
         screen = App.get_running_app().root
         screen.current = "viewer"

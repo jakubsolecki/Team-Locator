@@ -4,3 +4,4 @@ __pycache__/
 *.py[cod]
 app/bin/
 app/.buildozer/
+app/data.json

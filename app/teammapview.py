@@ -57,7 +57,7 @@ class TeamMapView(MapView):
         markers = self.client.get_markers()
 
         for mark in self.markerArr:
-            self.remove_widget(mark)  # Visible by user? Nope. Efficient? HELL NAH; Easy to implement? HELL YEAH
+            self.remove_widget(mark)
         self.markerArr.clear()
 
         for marker in markers:
