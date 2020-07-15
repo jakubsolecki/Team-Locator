@@ -1,6 +1,7 @@
 from time import sleep
 from kivy.app import App
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, StringProperty
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.treeview import TreeViewLabel
 from kivy.uix.popup import Popup
@@ -66,7 +67,7 @@ class TokenWindow(Screen):
         self.__connect()
         if not self.client.is_connected():
             return
-        atexit.register(self.disconnect)
+        atexit.register(self.__disconnect)
 
         message = self.code.text + ":" + self.nick.text
         print("Message being sent to server: " + message)
@@ -80,7 +81,7 @@ class TokenWindow(Screen):
         if len(self.code.text) >= 1 and self.code.text[0].isdigit():
             self.colornum = int(self.code.text[0])
 
-        # GPS always starts in our faculty building <3
+        # GPS always starts in AGH WIEiT faculty building
         self.current_blinker = blinker = GpsBlinker(lon=19.9125399, lat=50.0680966,
                                                     nick=self.nick.text, color_number=self.colornum)
         team_map = App.get_running_app().root.ids.mw.ids.map
@@ -173,11 +174,35 @@ class BtnPopup(Widget):
         show_popup(text=self.text)
 
     def terminate_game_remove_host_privileges(self):
-        client = Client.get_instance()
-        client.send_message(client.CLOSE_GAME, None)
+        content = ConfirmPopup(text='Are you sure?')
+        content.bind(on_answer=self._on_answer)
+        self.popup = Popup(title="Answer Question",
+                           content=content,
+                           size_hint=(None, None),
+                           size=(480, 400))
+        self.popup.open()
 
-        team_map = App.get_running_app().root.ids.mw.ids.map
-        team_map.remove_host_buttons()
-        tw = App.get_running_app().root.ids.tw
-        team_map.remove_widget(tw.current_blinker)
-        team_map.host_buttons = None
+    def _on_answer(self, instance, answer):
+        if answer is 'yes':
+            client = Client.get_instance()
+            client.send_message(client.CLOSE_GAME, None)
+
+            team_map = App.get_running_app().root.ids.mw.ids.map
+            team_map.remove_host_buttons()
+            tw = App.get_running_app().root.ids.tw
+            team_map.remove_widget(tw.current_blinker)
+            team_map.host_buttons = None
+            #WindowManager.current_screen("menu")
+            App.get_running_app().root.current = "menu"
+        self.popup.dismiss()
+
+
+class ConfirmPopup(GridLayout):
+    text = StringProperty()
+
+    def __init__(self, **kwargs):
+        self.register_event_type('on_answer')
+        super(ConfirmPopup, self).__init__(**kwargs)
+
+    def on_answer(self, *args):
+        pass

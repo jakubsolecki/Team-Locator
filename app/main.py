@@ -13,3 +13,11 @@ class MainApp(App):
 
 if __name__ == "__main__":
     MainApp().run()
+
+
+'''
+TODO LIST:
+1. Bind return (esc) button
+2. Resize confirmation button
+3. Test build on phone
+'''

@@ -181,7 +181,7 @@
         right: self.width and root.x + root.width
         top: self.height and root.y + root.height
         text: "STOP"
-        on_release: app.root.current = "menu"
+
         on_release: root.terminate_game_remove_host_privileges()
 
 
@@ -190,3 +190,18 @@
         text: root.text
         size_hint: 0.6, 0.2
         pos_hint: {"x":0.2, "top":1}
+
+<ConfirmPopup>:
+    cols:1
+	Label:
+		text: root.text
+	GridLayout:
+		cols: 2
+		size_hint_y: None
+		height: '44sp'
+		Button:
+			text: 'Yes'
+			on_release: root.dispatch('on_answer','yes')
+		Button:
+			text: 'No'
+			on_release: root.dispatch('on_answer', 'no')
