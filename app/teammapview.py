@@ -7,6 +7,7 @@ from kivy.clock import Clock
 from kivy.app import App
 from teammarker import TeamMarker
 from client import Client
+from returnbinder import ReturnBinder
 import gui
 
 
@@ -51,6 +52,7 @@ class TeamMapView(MapView):
             self.remove_widget(App.get_running_app().root.ids.tw.current_blinker)
             screen = App.get_running_app().root
             screen.current = "menu"
+            ReturnBinder.get_instance().current_screen = "menu"
             self.start_checking = False
             return
 

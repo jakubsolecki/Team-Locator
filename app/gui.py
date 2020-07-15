@@ -16,6 +16,7 @@ from kivy.storage.jsonstore import JsonStore
 import atexit
 import os
 import glob
+from returnbinder import ReturnBinder
 
 
 class WindowManager(ScreenManager):
@@ -50,7 +51,7 @@ class TokenWindow(Screen):
             return
         self.client.connect(server_ip=self.ip_address.text)
 
-    # after pressing Host Game button:
+    # after pressing "Host Game" button:
     def host_connect(self):
         self.__connect()
         if not self.client.is_connected():
@@ -59,10 +60,11 @@ class TokenWindow(Screen):
 
         screen = App.get_running_app().root
         screen.current = "host"
+        ReturnBinder.get_instance().current_screen = "host"
         self.stored_data.clear()
         self.stored_data.put('credentials', ip_address=self.ip_address.text, nick=self.nick.text)
 
-    # after pressing Connect Game button:
+    # after pressing "Connect Game" button:
     def player_connect(self):
         self.__connect()
         if not self.client.is_connected():
@@ -95,6 +97,7 @@ class TokenWindow(Screen):
 
         screen = App.get_running_app().root
         screen.current = "viewer"
+        ReturnBinder.get_instance().current_screen = "viewer"
 
 
 class HostWindow(Screen):  # Window for setting game rules
@@ -146,6 +149,7 @@ class HostWindow(Screen):  # Window for setting game rules
 
         screen = App.get_running_app().root
         screen.current = "viewer"
+        ReturnBinder.get_instance().current_screen = "viewer"
 
 
 # -----------------------------These classes made for pop window of team tokens-----------------------------------------
@@ -176,10 +180,10 @@ class BtnPopup(Widget):
     def terminate_game_remove_host_privileges(self):
         content = ConfirmPopup(text='Are you sure?')
         content.bind(on_answer=self._on_answer)
-        self.popup = Popup(title="Answer Question",
+        self.popup = Popup(title="Terminating game",
                            content=content,
                            size_hint=(None, None),
-                           size=(480, 400))
+                           size=(480, 400))  # TODO: CHANGE SIZE ETC
         self.popup.open()
 
     def _on_answer(self, instance, answer):
@@ -192,8 +196,8 @@ class BtnPopup(Widget):
             tw = App.get_running_app().root.ids.tw
             team_map.remove_widget(tw.current_blinker)
             team_map.host_buttons = None
-            #WindowManager.current_screen("menu")
             App.get_running_app().root.current = "menu"
+            ReturnBinder.get_instance().current_screen = "menu"
         self.popup.dismiss()
 
 
