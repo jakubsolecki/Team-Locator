@@ -183,7 +183,7 @@ class BtnPopup(Widget):
         self.popup = Popup(title="Terminating game",
                            content=content,
                            size_hint=(None, None),
-                           size=(480, 400))  # TODO: CHANGE SIZE ETC
+                           size=(sp(200), sp(200)))
         self.popup.open()
 
     def _on_answer(self, instance, answer):

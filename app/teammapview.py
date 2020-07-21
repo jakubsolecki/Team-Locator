@@ -32,22 +32,23 @@ class TeamMapView(MapView):
         super(TeamMapView, self).__init__(**kwargs)
 
     def add_host_buttons(self):
-        window = App.get_running_app().root.ids.mw
-        codes = ''
-        i = 1
-        for token in self.client.get_all_tokens():
-            codes = "\n" + codes + "Team " + str(i) + ":  " + token + "\n"
-            i = i + 1
+        if self.host_buttons is None:
+            window = App.get_running_app().root.ids.mw
+            codes = ''
+            i = 1
+            for token in self.client.get_all_tokens():
+                codes = "\n" + codes + "Team " + str(i) + ":  " + token + "\n"
+                i = i + 1
 
-        self.host_buttons = gui.BtnPopup(codes)
-        window.add_widget(self.host_buttons)
+            self.host_buttons = gui.BtnPopup(codes)
+            window.add_widget(self.host_buttons)
 
     def remove_host_buttons(self):
         window = App.get_running_app().root.ids.mw
         window.remove_widget(self.host_buttons)
         self.host_buttons = None
 
-    def get_markers_in_fov(self, *args):
+    def get_markers_in_fov(self, *args):  # Update function
         if not self.client.get_token() and self.start_checking:  # Returns you to menu if server restarted
             self.remove_widget(App.get_running_app().root.ids.tw.current_blinker)
             screen = App.get_running_app().root

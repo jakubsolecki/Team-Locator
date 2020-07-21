@@ -9,7 +9,6 @@ class ReturnBinder:
     def get_instance():
         if ReturnBinder.__instance is None:
             ReturnBinder()
-
         return ReturnBinder.__instance
 
     def __init__(self):
@@ -17,8 +16,8 @@ class ReturnBinder:
             raise Exception("ReturnBinder must be a singleton")
         else:
             ReturnBinder.__instance = self
-
         self.current_screen = "token_window"
+        self.team_map = App.get_running_app().root.ids.mw.ids.map
 
     def changed_screen(self, window, key, *largs):
         if key == 27:
@@ -29,9 +28,10 @@ class ReturnBinder:
                 screen.current = "menu"
                 self.current_screen = "menu"
                 return True
-            if self.current_screen is "viewer":
+            if self.current_screen is "viewer":  # Map view
                 screen.current = "menu"  # TODO: DISCONNECT?
                 self.current_screen = "menu"
+                self.team_map.remove_widget(App.get_running_app().root.ids.tw.current_blinker)
                 return True
             if self.current_screen is "host_window":
                 screen.current = "menu"
