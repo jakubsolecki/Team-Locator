@@ -89,13 +89,13 @@
         GridLayout:
             cols: 3
             size_hint_y:None
-            height: '50sp'
+            height: '40sp'
             Widget:
                 size_hint_x:None
                 width: '50sp'
             TextInput:
                 text: root.stored_data.get('credentials')['ip_address'] if root.stored_data.exists('credentials') else ''
-                padding: '16sp'
+                padding: '13sp'
                 id: ip_address
                 multiline: False
                 hint_text:'IP address...'
@@ -103,7 +103,7 @@
                 size_hint_x:None
                 width: '50sp'
         Widget:
-            height: '8sp'
+            height: '4sp'
             size_hint_y:None
         Label:
             text:"Nickname:"
@@ -112,13 +112,13 @@
         GridLayout:
             cols: 3
             size_hint_y:None
-            height: '50sp'
+            height: '40sp'
             Widget:
                 size_hint_x:None
                 width: '50sp'
             TextInput:
                 text: root.stored_data.get('credentials')['nick'] if root.stored_data.exists('credentials') else ''
-                padding: '16sp'
+                padding: '13sp'
                 id: nick
                 multiline: False
                 hint_text:'Nickname...'
@@ -126,30 +126,27 @@
                 size_hint_x:None
                 width: '50sp'
         Widget:
-            height: '8sp'
+            height: '4sp'
             size_hint_y:None
         Label:
             text:"Team / Host code:"
             size_hint_y:None
-            height: '50sp'
+            height:50
         GridLayout:
             cols: 3
             size_hint_y:None
-            height: '50sp'
+            height: '40sp'
             Widget:
                 size_hint_x:None
-                width: '75sp'
+                width: '50sp'
             TextInput:
-                padding: '16sp'
+                padding: '13sp'
                 id: code
                 multiline: False
                 hint_text:'Team / Host code...'
             Widget:
                 size_hint_x:None
-                width: '75sp'
-        Widget:
-            height: '8sp'
-            size_hint_y:None
+                width: '50sp'
 
         Widget:
         Button:
