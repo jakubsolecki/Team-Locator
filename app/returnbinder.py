@@ -1,5 +1,7 @@
 from kivy.app import App
 
+from client import Client
+
 
 class ReturnBinder:
     __instance = None
@@ -30,6 +32,8 @@ class ReturnBinder:
                 return True
             if self.current_screen is "viewer":  # Map view
                 screen.current = "menu"  # TODO: DISCONNECT?
+                client = Client.get_instance()
+                client.send_message(client.DISCONNECT_MESSAGE, App.get_running_app().root.ids.tw.code.text)
                 self.current_screen = "menu"
                 self.team_map.remove_widget(App.get_running_app().root.ids.tw.current_blinker)
                 return True
