@@ -158,7 +158,7 @@ class HostWindow(Screen):  # Window for setting game rules
 # -----------------------------These classes made for pop window of team tokens-----------------------------------------
 def show_popup(text):
     show = Pop(text)
-    popupWindow = Popup(title="Password for teams:", content=show, size_hint=(None, None), size=(sp(200), sp(400)))
+    popupWindow = Popup(title="Password for teams:", content=show, size_hint=(None, None), size=(sp(200), sp(250)))
     popupWindow.open()
 
 
