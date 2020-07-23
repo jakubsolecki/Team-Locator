@@ -39,6 +39,9 @@ class TokenWindow(Screen):
     def __disconnect(self):
         files = glob.glob('cache/*.png')
         for f in files:
+            if not f.endswith(".png"):  # Additional safety, should never happen
+                print("ERROR WHILE CLEARING CACHE, FOUND NON-PNG FILE, ABORTING")
+                break
             os.remove(f)
         self.client.send_message(self.client.DISCONNECT_MESSAGE, self.code.text)
         sleep(1)

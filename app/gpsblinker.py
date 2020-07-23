@@ -2,6 +2,7 @@ from kivy.garden.mapview import MapMarkerPopup
 from kivy.animation import Animation
 from kivy.utils import get_color_from_hex
 from colordict import color_dictionary
+from kivy.metrics import sp
 
 
 class GpsBlinker(MapMarkerPopup):
@@ -10,6 +11,7 @@ class GpsBlinker(MapMarkerPopup):
     def __init__(self, color_number=0, nick='PLACEHOLDER', *args, **kwargs):
         self.color = get_color_from_hex(color_dictionary[color_number])
         self.nick = nick
+        self.sp = sp(1)
 
         # For animation color; Clear needed if renewing game
         self.animColor.clear()

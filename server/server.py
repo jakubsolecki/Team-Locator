@@ -47,6 +47,12 @@ class Server:
         self._admin = Admin()
         self._token_count = 0
         print("Server socket created successfully")
+        if len(sys.argv) is 2 and 4 <= len(sys.argv[1]) <= 16:
+            self.ADMIN_TOKEN = sys.argv[1]
+            print("Custom admin token successfully set")
+        else:
+            print("To set custom admin token, please write:\n$> python (...)\\server.py <YOUR TOKEN HERE>\nPlease note "
+                  "token length must be between 4 and 16 letters")
 
     def _sigint_handler(self, signum, stack_frame):
         self.stop_server()
