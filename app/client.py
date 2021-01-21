@@ -7,6 +7,7 @@ import time
 import signal
 import hmac
 import hashlib
+# TODO: logging module (zamiast
 
 
 # ============== Client is a singleton therefore it must always be created/accessed using get_instance() ==============
@@ -40,7 +41,7 @@ class Client:
 
     def __init__(self):
         if Client.__instance is not None:  # singleton implementation
-            raise Exception("Client class must be a singleton!")
+            raise Exception("Client class must be a singleton!")  # TODO: create own Exception
         else:
             Client.__instance = self
 
@@ -69,6 +70,7 @@ class Client:
     def get_all_tokens(self):
         return self._all_tokens
 
+    # TODO: full names
     def set_coordinates(self, lon, lat):
         self._lon = lon
         self._lat = lat
@@ -164,7 +166,7 @@ class Client:
                             print("[ERROR] Message denied due to digests incompatibility")
                             continue
 
-                        print(msg)  # TODO: remove me
+                        print(msg)
                         # handling received messages according to their content
                         if msg[0] == self.REQUEST_LOCATIONS:
                             with self._r_lock:

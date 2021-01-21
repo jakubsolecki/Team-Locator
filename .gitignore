@@ -5,3 +5,4 @@ __pycache__/
 app/bin/
 app/.buildozer/
 app/data.json
+readme/
