@@ -33,13 +33,13 @@ Host is the supervisor of the game. Host manages the game, creates required numb
 2.  Now you can choose whether You want to be visible (```Host widoczny```) and adjust number of teams. Colors of teams' names correspond to their pins on map. It is worth noting that the Host is ***always black***. <br/><br/>
 3.  Now click ```connect```. <br/><br/>
 4.  After landing on the map go to ```Codes``` (top left) and provide one token for each team. Each game generates new tokens. <br/><br/>
-5.  To finish the game go the ```Stop``` (top right). You will be asked to confirm. After ```Yes```, the Host **and all players** will be redirected to the main screen.
+5.  To finish the game go to the ```Stop``` (top right). You will be asked to confirm. After ```Yes```, the Host **and all players** will be redirected to the main screen.
 
 #### Player
 Players can only see their teammates on map. After receiving token from Host just click ```Connect Game```.
 
 ### Server
-Server is the core and allows mobile devices with Team-Locator to exchange data about location. Server (```server.py```) must be running on a computer with an internet connection and ```port 5050``` opened for global traffic. (Thus we recommend running it on some kind of VM server (we used DigitalOcean's droplet with Linux)). Script can be run like any Python script, because it relies only on the standard library. _Remeber, that you can always access these kind of servers from your phone, using ssh (Thermux is awesome for that!)_ <br/>
+Server is the core and allows mobile devices with Team-Locator to exchange data about location. Server (```server.py```) must be running on a computer with an internet connection and ```port 5050``` opened for global traffic. (*Thus we recommend running it on some kind of VM server - we used DigitalOcean's droplet with Linux*). Script can be run like any Python script, because it relies only on the standard library. _Remeber, that you can always access these kind of servers from your phone, using ssh (Thermux is awesome for that!)_ <br/>
 
 ***Run server:*** ```python server.py``` (be sure to use python 3.x).<br/>
 ***Stop server:*** ```Ctrl + C``` in server's console. 
