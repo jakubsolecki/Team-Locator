@@ -8,8 +8,6 @@ Team-Locator is a mobile app developed using Python Kivy corss-platform framewor
 
 ## Usage
 
-### Server
-
 Run ```python server.py``` ona a computer connected to the network, that has ```port 5050``` opened. Read more in **Server** section.
 
 ### Mobile app
