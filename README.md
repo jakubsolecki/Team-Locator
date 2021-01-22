@@ -39,7 +39,7 @@ Host is the supervisor of the game. Host manages the game, creates required numb
 Players can only see their teammates on map. After receiving token from Host just click ```Connect Game```.
 
 ### Server
-Server is the core and allows mobile devices with Team-Locator to exchange data about location. Server (```server.py```) must be running on a computer with an internet connection and ```port 5050``` opened for global traffic. (*Thus we recommend running it on some kind of VM server - we used DigitalOcean's droplet with Linux*). Script can be run like any Python script, because it relies only on the standard library. _Remeber, that you can always access these kind of servers from your phone, using ssh (Thermux is awesome for that!)_ <br/>
+Server is the core and allows mobile devices with Team-Locator to exchange data about location. Server (```server.py```) must be running on a computer with an internet connection and ```port 5050``` opened for global traffic. (*Therefore, we recommend running it on some kind of VM server - we used DigitalOcean's droplet with Linux*). Script can be run like any Python script, because it relies only on the standard library. _Remeber, that you can always access these kind of servers from your phone, using ssh (Thermux is awesome for that!)_ <br/>
 
 ***Run server:*** ```python server.py``` (be sure to use python 3.x).<br/>
 ***Stop server:*** ```Ctrl + C``` in server's console. 
