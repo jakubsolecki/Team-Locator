@@ -4,13 +4,17 @@
 
 # Team-Locator
 
-Team-Locator is a mobile app developed using Python Kivy corss-platform framework. The app helps to improve outdoor games coordination.
+Team-Locator is a mobile app developed using Python Kivy framework. The app improves coordination of outdoor games by displaying participants' locations.
 
 # Usage
 
-Run ```python server.py``` ona a computer connected to the network, that has ```port 5050``` opened. Read more in the [Server](#server) section.
+Run ```python server.py``` on a computer connected to the network, that has ```port 5050``` opened. Read more in the [Server](#server) section.
 
 ## Mobile app
+
+Install ```teamlocator.apk```, then launch app. Allow it to access device's location - without it You won't be able to use Team-Locator.
+
+### Setup screen
 
 **IP address** - IP address of the server.
 
@@ -21,8 +25,8 @@ Run ```python server.py``` ona a computer connected to the network, that has ```
 ## Users
 
 There are 2 types of users:
-* Host
-* Players
+* [Host](#host)
+* [Players](player)
 
 ### Host
 ***It is advised for the Host to have access to the server (eg. using Thermux ssh)***. <br/>
