@@ -14,6 +14,12 @@ Run ```python server.py``` on a computer connected to the network, that has ```p
 
 Install ```teamlocator.apk```, then launch app. Allow it to access device's location - without it You won't be able to use Team-Locator.
 
+### App navigation
+In order to create a game, firstly the server must be ran. Then in the setup screen you must insert IP address, nickname and host code (on default ```/00/``` or a custom one) and press ```Host Game```.<br/>
+***IMPORTANT: If pressing Connect/Host Game buttons doesn't navigate you to another screen it means you couldn't connect to the server. Whether IP and Password is incorrect or port 5050 is closed on server's computer.***<br/>
+
+When host successfully created game, in the upper left corner host should see the tab with team codes. By using them in ```Team / Host code``` another players can join the game by using same IP address.
+
 ### Setup screen
 
 **IP address** - IP address of the server.
@@ -46,6 +52,7 @@ Players can only see their teammates on map. After receiving token from Host jus
 Server is the core and allows mobile devices with Team-Locator to exchange data about location. Server (```server.py```) must be running on a computer with an internet connection and ```port 5050``` opened for global traffic. (*Therefore, we recommend running it on some kind of VM server - we used DigitalOcean's droplet with Linux*). Script can be run like any Python script, because it relies only on the standard library. _Remeber, that you can always access these kind of servers from your phone, using ssh (Thermux is awesome for that!)_ <br/>
 
 ***Run server:*** ```python server.py``` (be sure to use python 3.x).<br/>
+***Custom host code:*** ```python server.py abcd``` (then host code is "abcd").<br/>
 ***Stop server:*** ```Ctrl + C``` in server's console. 
 
 Server can handle multpile games but not at the same time. You can run it once and forget about it. Everything else can be configured from app's level.
