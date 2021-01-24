@@ -4,7 +4,9 @@
 
 # Team-Locator
 
-Team-Locator is a mobile app developed using Python Kivy framework. The app improves coordination of outdoor games by displaying participants' locations.
+Team-Locator is a mobile app developed using Python Kivy framework. The app improves coordination of outdoor games by displaying participants' locations.<br/>
+There is only android version, no iOS one, sorry.<br/><br/>
+App is compiled via <a href="https://github.com/kivy/buildozer">Buildozer</a> and is using a legacy <a href="https://pypi.org/project/kivy-garden.mapview/">Mapview</a> library directly imported into project.
 
 # Usage
 
