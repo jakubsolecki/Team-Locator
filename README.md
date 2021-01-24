@@ -14,12 +14,6 @@ Run ```python server.py``` on a computer connected to the network, that has ```p
 
 Install ```teamlocator.apk```, then launch app. Allow it to access device's location - without it You won't be able to use Team-Locator.
 
-### App navigation
-In order to create a game, firstly the server must be ran. Then in the setup screen you must insert IP address, nickname and host code (on default ```/00/``` or a custom one) and press ```Host Game```.<br/>
-***IMPORTANT: If pressing Connect/Host Game buttons doesn't navigate you to another screen it means you couldn't connect to the server. Whether IP and Password is incorrect or port 5050 is closed on server's computer.***<br/>
-
-When host successfully created game, in the upper left corner host should see the tab with team codes. By using them in ```Team / Host code``` another players can join the game by using same IP address.
-
 ### Setup screen
 
 **IP address** - IP address of the server.
@@ -39,7 +33,8 @@ There are 2 types of users:
 Host is the supervisor of the game. Host manages the game, creates required number of teams (1-10), starts/ends game and provides tokens to teams. This person is also the only one able to see all players on the map while having the ability to share own location with everyone or remain transparent. 
 
 #### Quick guide
-1.  To become host, one must provide special token obtained form server's console after startup. The default token is ```/00/``` and is hardcoded in the ```server.py``` (You are free to change it any time). After filling all inputs the Host can use ```Host Game``` button. <br/><br/>
+1.  To become host, one must provide special token obtained form server's console after startup. The default token is ```/00/``` and is hardcoded in the ```server.py``` (You are free to change it any time). After filling all inputs the Host can use ```Host Game``` button. <br/>
+***IMPORTANT: If pressing Connect/Host Game buttons doesn't navigate you to another screen it means you couldn't connect to the server. Whether IP and Password is incorrect or port 5050 is closed on server's computer.***<br/><br/>
 2.  Now you can choose whether You want to be visible (```Host widoczny```) and adjust number of teams. Colors of teams' names correspond to their pins on map. It is worth noting that the Host is ***always black***. <br/><br/>
 3.  Now click ```connect```. <br/><br/>
 4.  After landing on the map go to ```Codes``` (top left) and provide one token for each team. Each game generates new tokens. <br/><br/>
